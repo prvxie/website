@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        if (!window.location.pathname.endsWith('/') && !window.location.pathname.split('/').pop().includes('.')) {
+            window.location.replace(window.location.pathname + '/' + window.location.search + window.location.hash);
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Back to Main Website Arrow -->
+    <a href="../" class="back-btn" style="position:fixed;top:20px;left:20px;z-index:9999;color:#fff;font-size:24px;text-decoration:none;transition:transform 0.3s;opacity:0.6;" onmouseover="this.style.transform='scale(1.2)';this.style.opacity='1';" onmouseout="this.style.transform='scale(1)';this.style.opacity='0.6';">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <!-- Click to Enter Screen -->
+    <div id="enter-screen" tabindex="0" aria-label="Click to enter profile"
+         onclick="dismissEnterScreen()"
+         onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); dismissEnterScreen(); }">
+        <div id="enter-content">
+            <img id="enter-avatar" src="" alt="" style="display:none;" onerror="this.style.display='none';">
+            <p id="enter-text">[ Click to Enter ]</p>
+        </div>
+    </div>
+
+    <!-- Background Layers -->
+    <div id="bg-container">
+        <div id="bg-color-layer"></div>
+        <video id="bg-video" autoplay loop muted playsinline style="display:none;"></video>
+        <img id="bg-image" style="display:none;" alt="">
+        <canvas id="bg-canvas"></canvas>
+    </div>
+
+    <!-- Effects Overlay -->
+    <div id="effects-container">
+        <div id="crt-overlay" class="effect-layer" style="display:none;"></div>
+        <div id="vignette-overlay" class="effect-layer" style="display:none;"></div>
+        <div id="grain-overlay" class="effect-layer" style="display:none;"></div>
+        <div id="screen-glow" class="effect-layer" style="display:none;"></div>
+    </div>
+
+    <!-- Audio -->
+    <audio id="bg-audio" loop></audio>
+
+    <!-- Main Profile Card -->
+    <div class="profile-wrapper" id="profile-wrapper">
+        <div class="profile-container" id="profile-container">
+            <div class="card" id="card">
+
+                <!-- Elements rendered by JS based on elementOrder -->
+                <div id="el-avatar" class="el">
+                    <div class="avatar-wrapper" id="avatar-wrapper">
+                        <img id="profile-avatar" src="" alt="Avatar">
+                    </div>
+                </div>
+
+                <div id="el-username" class="el">
+                    <h1 id="profile-username"></h1>
+                </div>
+
+                <div id="el-subtitle" class="el" style="display:none;">
+                    <p class="subtitle" id="profile-subtitle"></p>
+                </div>
+
+                <div id="el-bio" class="el">
+                    <p class="bio" id="profile-bio"></p>
+                </div>
+
+                <div id="el-badges" class="el" style="display:none;">
+                    <div class="badges-row" id="profile-badges"></div>
+                </div>
+
+                <div id="el-socials" class="el">
+                    <div class="socials" id="profile-socials"></div>
+                </div>
+
+                <div id="el-links" class="el">
+                    <div class="links-container" id="profile-links"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function dismissEnterScreen() {
+            const el = document.getElementById('enter-screen');
+            if (!el || el.classList.contains('hidden')) return;
+            el.classList.add('hidden');
+            setTimeout(function () { el.remove(); }, 700);
+            if (typeof initAudio === 'function') initAudio();
+        }
+    </script>
+    <script src="profile.js"></script>
+</body>
+</html>
