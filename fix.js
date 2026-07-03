@@ -1,0 +1,13 @@
+const fs = require('fs');
+let text = fs.readFileSync('editor.html', 'utf8');
+text = text.replace(/👤/g, '<i class=\"fas fa-plus\"></i>');
+text = text.replace(/🖱� /g, '??');
+text = text.replace(/✨/g, '?');
+text = text.replace(/▶︎/g, '??');
+text = text.replace(/🔒/g, '??');
+text = text.replace(/💾/g, '??');
+text = text.replace(/🔄/g, '??');
+text = text.replace(/🗑︎/g, '???');
+text = text.replace(/✓/g, '?');
+text = text.replace(/\?\? /g, '?? ');
+fs.writeFileSync('editor.html', text, 'utf8');

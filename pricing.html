@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing — alternate.lol</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4rem 2rem;
+            background: radial-gradient(circle at 50% 0%, #111 0%, #000 70%);
+            overflow-y: auto;
+            z-index: 1;
+        }
+
+        .page-header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4rem;
+        }
+
+        .page-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .page-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .back-link {
+            font-size: 0.9rem;
+            color: var(--muted);
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: -1px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .pricing-page-card {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .pricing-page-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: rgba(88, 101, 242, 0.06);
+        }
+
+        .pricing-page-card.featured {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .plan-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .plan-header i {
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--muted);
+        }
+
+        .plan-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .plan-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .plan-features li i {
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
+        .plan-btn {
+            display: block;
+            text-align: center;
+            padding: 0.9rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: transparent;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .page {
+                padding: 2rem 1.5rem;
+            }
+
+            .page-header {
+                margin-bottom: 2.5rem;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-header">
+            <a href="index.html" class="page-logo">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                    <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="none" stroke="#fff" stroke-width="3"/>
+                    <text x="50" y="60" text-anchor="middle" fill="#fff" font-size="32" font-weight="700" font-family="Space Grotesk, sans-serif">A</text>
+                </svg>
+                <span>alternate.lol</span>
+            </a>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+
+        <h1 class="page-title">Products</h1>
+
+        <div class="pricing-grid">
+            <div class="pricing-page-card featured">
+                <div class="plan-header">
+                    <i class="fas fa-code"></i>
+                    Script Lifetime
+                </div>
+                <div class="plan-price">$15 <span>one-time</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> Lifetime access</li>
+                    <li><i class="fas fa-check"></i> All updates included</li>
+                    <li><i class="fas fa-check"></i> Discord support</li>
+                </ul>
+                <a href="https://discord.gg/alternate" target="_blank" class="plan-btn">Purchase</a>
+            </div>
+
+            <div class="pricing-page-card">
+                <div class="plan-header">
+                    <i class="fas fa-gamepad"></i>
+                    Roblox External
+                </div>
+                <div class="plan-price"><span>Coming Soon</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> External cheat</li>
+                    <li><i class="fas fa-check"></i> Undetected</li>
+                    <li><i class="fas fa-check"></i> Join Discord for updates</li>
+                </ul>
+                <a href="https://discord.gg/alternate" target="_blank" class="plan-btn">Notify Me</a>
+            </div>
+
+            <div class="pricing-page-card">
+                <div class="plan-header">
+                    <i class="fas fa-cube"></i>
+                    Minecraft External
+                </div>
+                <div class="plan-price"><span>Coming Soon</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> External utility</li>
+                    <li><i class="fas fa-check"></i> Forge/Fabric support</li>
+                    <li><i class="fas fa-check"></i> Join Discord for updates</li>
+                </ul>
+                <a href="https://discord.gg/alternate" target="_blank" class="plan-btn">Notify Me</a>
+            </div>
+
+            <div class="pricing-page-card">
+                <div class="plan-header">
+                    <i class="fas fa-crosshairs"></i>
+                    CS:GO External
+                </div>
+                <div class="plan-price"><span>Coming Soon</span></div>
+                <ul class="plan-features">
+                    <li><i class="fas fa-check"></i> External aim/ESP</li>
+                    <li><i class="fas fa-check"></i> VAC safe</li>
+                    <li><i class="fas fa-check"></i> Join Discord for updates</li>
+                </ul>
+                <a href="https://discord.gg/alternate" target="_blank" class="plan-btn">Notify Me</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

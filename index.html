@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="alternate.lol — koni & kaiden">
+    <title>alternate.lol</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
+    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="wave-bg" aria-hidden="true"></div>
+
+    <!-- Top-center notification -->
+    <div id="toast" class="toast" role="status" aria-live="polite">
+        <span id="toast-message">Bringing you to...</span>
+        <div class="toast-bar"></div>
+    </div>
+
+    <!-- Intro / Logo Splash -->
+    <div id="intro" class="intro">
+        <div class="logo-mark">
+            <img src="favicon.svg?v=3" alt="alternate.lol" class="intro-logo">
+        </div>
+    </div>
+
+    <!-- Main Landing -->
+    <div id="landing" class="landing hidden">
+        <div class="landing-inner">
+            <div class="top-logo">
+                <img src="favicon.svg?v=3" alt="alternate.lol" class="top-logo-img">
+                <span>alternate.lol</span>
+            </div>
+
+            <div class="profiles">
+                <a href="koni/" class="profile-link" data-toast="koni">koni</a>
+                <span class="ampersand">&</span>
+                <a href="kaiden/" class="profile-link" data-toast="kaiden">kaiden</a>
+            </div>
+        </div>
+
+        <div class="bottom-area">
+            <div class="footer">
+                <a href="https://alternatelol.mysellauth.com/" target="_blank" class="footer-link" data-toast="Pricing">Pricing</a>
+                <a href="https://discord.gg/alternate" target="_blank" class="footer-link" data-toast="Support">Support</a>
+                <a href="https://discord.gg/alternate" target="_blank" class="footer-link" data-toast="Discord" aria-label="Discord"><i class="fab fa-discord"></i></a>
+                <a href="https://tiktok.com/@falserealitys" target="_blank" class="footer-link" data-toast="TikTok" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                <a href="https://www.youtube.com/@koni683" target="_blank" class="footer-link" data-toast="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
+</body>
+</html>

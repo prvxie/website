@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>alternate.lol Editor V10</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--sidebar:520px;--tab-h:48px;}
+body{font-family:'Space Grotesk',sans-serif;background:#060606;color:#fff;display:flex;height:100vh;overflow:hidden;}
+
+/* ---- SIDEBAR ---- */
+.sidebar{width:var(--sidebar);display:flex;flex-direction:column;background:#0b0b0b;border-right:1px solid #1f1f1f;overflow:hidden;}
+
+/* Profile switcher */
+.switcher{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #1f1f1f;background:#111;flex-shrink:0;}
+.switcher select{flex:1;background:#1a1a1a;border:1px solid #333;color:#fff;padding:8px 12px;border-radius:6px;font-family:inherit;font-weight:600;font-size:0.95rem;}
+.switcher label{font-size:0.8rem;color:#666;white-space:nowrap;}
+
+/* Tabs */
+.tabs{display:flex;border-bottom:1px solid #1f1f1f;flex-shrink:0;background:#0d0d0d;overflow-x:auto;scroll-behavior:smooth;position:relative;}
+.tabs::-webkit-scrollbar{height:3px;}
+.tabs::-webkit-scrollbar-track{background:#0d0d0d;}
+.tabs::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+.tab-btn{flex-shrink:0;padding:0 14px;height:var(--tab-h);border:none;background:transparent;color:#555;cursor:pointer;font-family:inherit;font-size:0.78rem;font-weight:600;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+.tab-btn:hover{color:#ccc;background:rgba(255,255,255,.03);}
+.tab-btn.active{color:#fff;border-bottom-color:#fff;}
+
+/* Tab panels */
+.panels{flex:1;overflow-y:auto;overflow-x:hidden;}
+.panels::-webkit-scrollbar{width:3px;}
+.panels::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+.panel{display:none;padding:20px 18px;}
+.panel.active{display:block;}
+
+/* Form */
+.section{margin-bottom:22px;}
+.section-title{font-size:0.72rem;text-transform:uppercase;letter-spacing:1.5px;color:#444;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1a1a1a;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.row.row-3{grid-template-columns:1fr 1fr 1fr;}
+.fg{margin-bottom:10px;}
+label.lbl{display:block;font-size:0.78rem;color:#777;margin-bottom:5px;}
+input[type=text],input[type=number],select,textarea{width:100%;padding:9px 11px;background:#121212;border:1px solid #252525;color:#fff;border-radius:6px;font-family:inherit;font-size:0.88rem;transition:border .2s;}
+input[type=text]:focus,input[type=number]:focus,select:focus{border-color:#444;outline:none;}
+select option{background:#111;}
+
+/* Toggle */
+.toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:8px 14px;background:#121212;border:1px solid #222;border-radius:6px;font-size:0.83rem;user-select:none;transition:.2s;width:100%;}
+.toggle::before{content:'';width:14px;height:14px;border-radius:3px;border:2px solid #333;flex-shrink:0;transition:.2s;}
+.toggle.on{background:#1a1a1a;border-color:#444;color:#fff;}
+.toggle.on::before{background:#fff;border-color:#fff;}
+
+/* Color input row */
+.color-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#121212;border:1px solid #222;border-radius:6px;margin-bottom:8px;}
+.color-row label{font-size:0.82rem;color:#888;}
+input[type=color]{width:32px;height:28px;border:none;background:transparent;cursor:pointer;padding:0;border-radius:4px;}
+
+/* File input group */
+.file-row{display:flex;gap:6px;}
+.file-row input{flex:1;}
+.btn-browse{background:#1e1e1e;color:#ccc;border:1px solid #2a2a2a;padding:9px 13px;border-radius:6px;cursor:pointer;font-size:0.82rem;white-space:nowrap;transition:.2s;}
+.btn-browse:hover{background:#252525;color:#fff;}
+
+/* List items */
+.list-area{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:8px;padding:10px;margin-bottom:8px;max-height:240px;overflow-y:auto;}
+.list-item{display:flex;gap:6px;align-items:center;margin-bottom:8px;padding:8px;background:#151515;border-radius:6px;border:1px solid #1f1f1f;}
+.list-item:last-child{margin-bottom:0;}
+.list-item input{flex:1;margin:0;font-size:0.8rem;padding:6px 8px;}
+.list-item select{width:auto;padding:6px 8px;font-size:0.8rem;}
+.btn-rm{background:#2a0a0a;border:1px solid #4a1a1a;color:#f55;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:0.8rem;flex-shrink:0;}
+.btn-rm:hover{background:#3a1a1a;}
+.btn-add{width:100%;background:#111;border:1px dashed #2a2a2a;color:#666;padding:9px;border-radius:6px;cursor:pointer;font-size:0.82rem;transition:.2s;}
+.btn-add:hover{border-color:#444;color:#aaa;background:#151515;}
+
+/* Range slider */
+.range-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.range-row label{font-size:0.78rem;color:#777;white-space:nowrap;min-width:110px;}
+.range-row input[type=range]{flex:1;accent-color:#fff;}
+.range-val{font-size:0.8rem;color:#aaa;min-width:36px;text-align:right;}
+
+/* Preset buttons */
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.preset{padding:5px 12px;border:1px solid #2a2a2a;background:#111;color:#888;border-radius:20px;cursor:pointer;font-size:0.78rem;transition:.2s;}
+.preset:hover,.preset.active{background:#fff;color:#000;border-color:#fff;}
+
+/* ---- MAIN AREA ---- */
+.main{flex:1;display:flex;flex-direction:column;background:#040404;overflow:hidden;}
+.topbar{height:44px;background:#0a0a0a;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:10px;padding:0 16px;flex-shrink:0;}
+.topbar-btn{background:#1a1a1a;border:1px solid #2a2a2a;color:#ccc;padding:6px 14px;border-radius:5px;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit;transition:.2s;}
+.topbar-btn:hover{background:#252525;color:#fff;}
+.topbar-btn.primary{background:#fff;color:#000;border-color:#fff;}
+.topbar-btn.primary:hover{background:#ddd;}
+.topbar-label{font-size:0.8rem;color:#444;margin-left:auto;}
+
+.preview-wrap{flex:2;position:relative;min-height:0;}
+.preview-wrap iframe{width:100%;height:100%;border:none;}
+.code-area{flex:1;background:#050505;border-top:1px solid #1a1a1a;display:flex;flex-direction:column;min-height:0;max-height:220px;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid #1a1a1a;flex-shrink:0;}
+.code-header span{font-size:0.78rem;color:#555;}
+.code-body{flex:1;overflow-y:auto;padding:10px 16px;}
+.code-body pre{color:#7ec8e3;font-family:'Roboto Mono',monospace;font-size:0.78rem;white-space:pre-wrap;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <!-- Profile Switcher -->
+    <div class="switcher" style="padding-bottom:12px;border-bottom:1px solid #1a1a1a;">
+        <label class="lbl">Editing:</label>
+        <select id="cfg-profile" onchange="switchProfile()">
+            <option value="koni">koni</option>
+            <option value="kaiden">kaiden</option>
+        </select>
+        <button class="preset" style="margin-top:8px;width:100%;border-radius:6px;border-style:dashed;" onclick="addNewProfile()"><i class="fas fa-plus"></i> Add New Profile</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('identity',this)"><i class="fas fa-user"></i> Identity</button>
+        <button class="tab-btn" onclick="openTab('layout',this)"><i class="fas fa-th-large"></i> Layout</button>
+        <button class="tab-btn" onclick="openTab('card',this)"><i class="fas fa-credit-card"></i> Card</button>
+        <button class="tab-btn" onclick="openTab('background',this)"><i class="fas fa-image"></i> BG</button>
+        <button class="tab-btn" onclick="openTab('effects',this)"><i class="fas fa-magic"></i> FX</button>
+        <button class="tab-btn" onclick="openTab('cursor',this)"><i class="fas fa-mouse-pointer"></i> MOUSE/Cursor</button>
+        <button class="tab-btn" onclick="openTab('colors',this)"><i class="fas fa-palette"></i> Colors</button>
+        <button class="tab-btn" onclick="openTab('effects-plus',this)"><i class="fas fa-plus-circle"></i> Effects+</button>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+
+        <!-- ========== IDENTITY ========== -->
+        <div class="panel active" id="panel-identity">
+            <div class="section">
+                <div class="section-title">Username</div>
+                <div class="fg"><label class="lbl">Username</label><input type="text" id="cfg-username" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Username Effect</label>
+                    <select id="cfg-uname-fx" onchange="up()">
+                        <option value="none">None</option>
+                        <option value="rainbow">Rainbow</option>
+                        <option value="glow">Neon Glow</option>
+                        <option value="chromatic">Chromatic</option>
+                        <option value="shuffle">Matrix Shuffle</option>
+                        <option value="wavy">Wavy</option>
+                        <option value="neon_pulse">Neon Pulse</option>
+                        <option value="glitch">Glitch</option>
+                        <option value="outline">Outline</option>
+                        <option value="fire">Fire</option>
+                        <option value="shadow">Shadow</option>
+                    </select>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Bio & Subtitle</div>
+                <div class="fg"><label class="lbl">Bio</label><input type="text" id="cfg-bio" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Subtitle (below username)</label><input type="text" id="cfg-subtitle" oninput="up()"></div>
+                <div class="fg"><div class="toggle on" id="tgl-typewriter" onclick="tog(this)">Typewriter Bio</div></div>
+                <div class="range-row"><label>Typewriter Speed</label><input type="range" id="cfg-tw-speed" min="10" max="200" value="50" oninput="rng(this,'tw-speed-val');up()"><span class="range-val" id="tw-speed-val">50</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Avatar</div>
+                <div class="fg"><label class="lbl">Avatar URL / Filename</label>
+                    <div class="file-row">
+                        <input type="text" id="cfg-avatar" oninput="up()">
+                        <button class="btn-browse" onclick="document.getElementById('file-avatar').click()">Browse</button>
+                        <input type="file" id="file-avatar" style="display:none" accept="image/*" onchange="pickFile(this,'cfg-avatar')">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Shape</label>
+                        <select id="cfg-avatar-shape" onchange="up()">
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="rounded">Rounded</option>
+                            <option value="hexagon">Hexagon</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label class="lbl">Hover Effect</label>
+                        <select id="cfg-avatar-fx" onchange="up()">
+                            <option value="none">None</option>
+                            <option value="shine">Holographic Shine</option>
+                            <option value="spin">360 Spin</option>
+                            <option value="heartbeat">Heartbeat</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="zoom">Zoom</option>
+                            <option value="flip">Flip</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Border Style</label>
+                        <select id="cfg-avatar-border" onchange="up()">
+                            <option value="none">None</option>
+                            <option value="rgb">RGB Animated</option>
+                            <option value="neon">Neon Glow</option>
+                            <option value="white">White</option>
+                            <option value="solid">Solid Color</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label class="lbl">Border Color</label><input type="color" id="col-avatar-border" value="#ff00ff" oninput="up()"></div>
+                </div>
+                <div class="range-row"><label>Avatar Size (px)</label><input type="range" id="cfg-avatar-size" min="60" max="200" value="120" oninput="rng(this,'avatar-size-val');up()"><span class="range-val" id="avatar-size-val">120</span></div>
+                <div class="fg"><div class="toggle on" id="tgl-show-avatar" onclick="tog(this)">Show Avatar</div></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Font</div>
+                <div class="fg"><label class="lbl">Font Family</label>
+                    <select id="cfg-font" onchange="showCustomFont();up()">
+                        <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Roboto Mono', monospace">Roboto Mono</option>
+                        <option value="'Cinzel', serif">Cinzel</option>
+                        <option value="custom">Custom Google Font</option>
+                    </select>
+                </div>
+                <div id="custom-font-area" style="display:none;">
+                    <div class="fg"><label class="lbl">Google Font URL</label><input type="text" id="cfg-font-url" placeholder="https://fonts.googleapis.com/css2?family=..." oninput="up()"></div>
+                    <div class="fg"><label class="lbl">CSS Font Name</label><input type="text" id="cfg-font-name" placeholder="'Oswald', sans-serif" oninput="up()"></div>
+                </div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Font Weight</label>
+                        <select id="cfg-font-weight" onchange="up()">
+                            <option value="300">Light (300)</option>
+                            <option value="400">Regular (400)</option>
+                            <option value="600" selected>Semi-Bold (600)</option>
+                            <option value="700">Bold (700)</option>
+                            <option value="900">Black (900)</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label class="lbl">Font Scale %</label><input type="number" id="cfg-font-scale" value="100" min="50" max="200" oninput="up()"></div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Badges</div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Badge 1 Text</label><input type="text" id="cfg-badge1-text" placeholder="✓ Verified" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Badge 1 Color</label><input type="color" id="col-badge1" value="#ffffff" oninput="up()"></div>
+                </div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Badge 2 Text</label><input type="text" id="cfg-badge2-text" placeholder="" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Badge 2 Color</label><input type="color" id="col-badge2" value="#ffffff" oninput="up()"></div>
+                </div>
+                <div style="border-top:1px solid #222;margin:12px 0 8px 0;"></div>
+                <label class="lbl">Unlimited Custom Badges</label>
+                <div id="badges-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+                <button class="btn-add" onclick="addBadge()">+ Add Custom Badge</button>
+            </div>
+        </div>
+
+        <!-- ========== LAYOUT ========== -->
+        <div class="panel" id="panel-layout">
+            <div class="section">
+                <div class="section-title">Visual Drag-and-Build Layout Grid</div>
+                <div style="background:#111;padding:12px;border-radius:6px;font-size:0.8rem;color:#aaa;border-left:3px solid #ffaa00;line-height:1.4;margin-bottom:12px;">
+                    💡 Click the edit pen icon below to toggle the visual builder. Drag elements to rearrange them, then see the changes immediately in the preview!
+                </div>
+                <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+                    <button id="btn-edit-layout" class="preset" onclick="toggleLayoutEditMode()" style="border-radius:6px;padding:6px 12px;font-size:0.85rem;"><i class="fas fa-pen"></i> Edit Layout Grid</button>
+                </div>
+                <div id="layout-grid-builder" class="layout-grid-builder" style="display:none;grid-template-columns:1fr;gap:8px;padding:10px;background:#141414;border:1px dashed #333;border-radius:6px;margin-bottom:15px;">
+                    <!-- Draggable elements dynamically populated -->
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Card Layout Preset</div>
+                <div class="fg">
+                    <select id="cfg-card-layout" onchange="up()">
+                        <option value="default">Default</option>
+                        <option value="zyo">Zyo (Glass/Glow)</option>
+                        <option value="basic">Basic Minimal</option>
+                        <option value="wide">Wide Layout</option>
+                        <option value="banner">Banner</option>
+                        <option value="full">Full Screen Edge-to-Edge</option>
+                        <option value="slides">Horizontal Slides</option>
+                        <option value="animated">Floating Animated</option>
+                    </select>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Card Position</div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Horizontal</label>
+                        <select id="cfg-card-h" onchange="up()">
+                            <option value="center">Center</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label class="lbl">Vertical</label>
+                        <select id="cfg-card-v" onchange="up()">
+                            <option value="middle">Middle</option>
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Card Dimensions</div>
+                <div class="range-row"><label>Card Width (px)</label><input type="range" id="cfg-card-width" min="280" max="700" value="450" oninput="rng(this,'card-w-val');up()"><span class="range-val" id="card-w-val">450</span></div>
+                <div class="range-row"><label>Card Padding (px)</label><input type="range" id="cfg-card-padding" min="16" max="80" value="48" oninput="rng(this,'card-pad-val');up()"><span class="range-val" id="card-pad-val">48</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Element Visibility</div>
+                <div class="fg"><div class="toggle on" id="tgl-show-username" onclick="tog(this)">Show Username</div></div>
+                <div class="fg"><div class="toggle" id="tgl-show-subtitle" onclick="tog(this)">Show Subtitle</div></div>
+                <div class="fg"><div class="toggle on" id="tgl-show-bio" onclick="tog(this)">Show Bio</div></div>
+                <div class="fg"><div class="toggle" id="tgl-show-badges" onclick="tog(this)">Show Badges</div></div>
+                <div class="fg"><div class="toggle on" id="tgl-show-socials" onclick="tog(this)">Show Socials</div></div>
+                <div class="fg"><div class="toggle on" id="tgl-show-links" onclick="tog(this)">Show Links</div></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Links & Socials Layout</div>
+                <div class="fg"><label class="lbl">Links Layout</label>
+                    <select id="cfg-links-layout" onchange="up()">
+                        <option value="list">List (Full Width)</option>
+                        <option value="grid2">Grid 2 Columns</option>
+                        <option value="grid3">Grid 3 Columns</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="lbl">Social Icons Layout</label>
+                    <select id="cfg-social-layout" onchange="up()">
+                        <option value="row">Row</option>
+                        <option value="grid">Grid</option>
+                    </select>
+                </div>
+                <div class="range-row"><label>Social Icon Size (px)</label><input type="range" id="cfg-social-size" min="14" max="48" value="24" oninput="rng(this,'social-size-val');up()"><span class="range-val" id="social-size-val">24</span></div>
+                <div class="range-row"><label>Social Icon Gap (px)</label><input type="range" id="cfg-social-gap" min="8" max="60" value="24" oninput="rng(this,'social-gap-val');up()"><span class="range-val" id="social-gap-val">24</span></div>
+            </div>
+        </div>
+
+        <!-- ========== CARD ========== -->
+        <div class="panel" id="panel-card">
+            <div class="section">
+                <div class="section-title">Card Settings</div>
+                <div class="range-row"><label>Blur (px)</label><input type="range" id="cfg-card-blur" min="0" max="50" value="15" oninput="rng(this,'card-blur-val');up()"><span class="range-val" id="card-blur-val">15</span></div>
+                <div class="range-row"><label>Border Radius (px)</label><input type="range" id="cfg-card-radius" min="0" max="50" value="20" oninput="rng(this,'card-rad-val');up()"><span class="range-val" id="card-rad-val">20</span></div>
+                <div class="range-row"><label>Border Width (px)</label><input type="range" id="cfg-card-border-w" min="0" max="10" value="1" oninput="rng(this,'card-bw-val');up()"><span class="range-val" id="card-bw-val">1</span></div>
+                <div class="fg"><label class="lbl">Border Style</label>
+                    <select id="cfg-card-border-style" onchange="up()">
+                        <option value="solid">Solid</option>
+                        <option value="none">None</option>
+                        <option value="rgb">RGB Glowing</option>
+                        <option value="neon">Neon Pulsing</option>
+                        <option value="double">Double</option>
+                        <option value="dashed">Dashed</option>
+                    </select>
+                </div>
+                <div class="color-row"><label>Border Color</label><input type="color" id="col-card-border" value="#333333" oninput="up()"></div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Shadow</div>
+                <div class="color-row"><label>Shadow Color</label><input type="color" id="col-card-shadow" value="#000000" oninput="up()"></div>
+                <div class="range-row"><label>Shadow Blur (px)</label><input type="range" id="cfg-card-shadow" min="0" max="150" value="50" oninput="rng(this,'card-sh-val');up()"><span class="range-val" id="card-sh-val">50</span></div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Animation & 3D</div>
+                <div class="fg"><label class="lbl">Entrance Animation</label>
+                    <select id="cfg-card-anim" onchange="up()">
+                        <option value="pop">Pop In (Default)</option>
+                        <option value="fade">Fade In</option>
+                        <option value="slide_up">Slide Up</option>
+                        <option value="slide_down">Slide Down</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <div class="fg"><div class="toggle on" id="tgl-tilt" onclick="tog(this)">3D Hover Tilt Effect</div></div>
+                <div class="range-row"><label>Tilt Strength (lower=more)</label><input type="range" id="cfg-tilt-str" min="10" max="100" value="35" oninput="rng(this,'tilt-str-val');up()"><span class="range-val" id="tilt-str-val">35</span></div>
+            </div>
+        </div>
+
+              <!-- ========== BACKGROUND ========== -->
+        <div class="panel" id="panel-background">
+            <div class="section">
+                <div class="section-title">Background Type</div>
+                <div class="fg">
+                    <select id="cfg-bg-type" onchange="showBgOptions();up(true)">
+                        <optgroup label="Core Presets">
+                            <option value="aurora">Aurora Gradient ✨</option>
+                            <option value="plasma">Plasma Liquid</option>
+                            <option value="topographic">Topographic Lines</option>
+                            <option value="waves">Liquid Waves</option>
+                            <option value="starfield">Starfield 3D</option>
+                            <option value="matrix">Matrix Code Rain</option>
+                            <option value="particles">Particle Network</option>
+                            <option value="lava">Lava Lamp</option>
+                            <option value="bubbles">Rising Bubbles</option>
+                            <option value="electric">Electric Lightning</option>
+                            <option value="vortex">Vortex Spiral</option>
+                            <option value="glassRain">Glass Rain</option>
+                            <option value="hypnotic">Hypnotic Rings</option>
+                            <option value="geometric">Geometric Tiles</option>
+                            <option value="flame">Flame Fire</option>
+                        </optgroup>
+                        <optgroup label="Nebula & Space">
+                            <option value="nebula">Nebula Starburst</option>
+                            <option value="spacewarp">Space Hyperdrive</option>
+                            <option value="supernova">Supernova Blast</option>
+                            <option value="blackhole">Black Hole Horizon</option>
+                            <option value="constellation">Constellation Nodes</option>
+                            <option value="fireflies">Glow Fireflies</option>
+                            <option value="twinkling">Twinkling Night Stars</option>
+                            <option value="sparklesbg">Floating Sparkles</option>
+                        </optgroup>
+                        <optgroup label="Cyber & Retro">
+                            <option value="cybergrid">Cyberpunk Grid</option>
+                            <option value="digitalwaves">Digital Audio Waveform</option>
+                            <option value="retrogrid">80s Synthwave Grid</option>
+                            <option value="matrixgreen">Matrix Green Rain</option>
+                            <option value="hexgrid">Hexagonal Tech Shield</option>
+                            <option value="hologram">Hologram Scanner Bar</option>
+                        </optgroup>
+                        <optgroup label="Nature & Weather">
+                            <option value="rainstorm">Heavy Rain Storm</option>
+                            <option value="snowstorm">Blizzard Snow Storm</option>
+                            <option value="sakura">Falling Sakura Petals</option>
+                            <option value="leaves">Windy Autumn Leaves</option>
+                            <option value="clouds">Stylized Vector Clouds</option>
+                            <option value="fireworksbg">Continuous Fireworks</option>
+                        </optgroup>
+                        <optgroup label="Geometric & Math">
+                            <option value="kaleidoscope">Kaleidoscope Mirror</option>
+                            <option value="cosinewaves">Cosine Interference</option>
+                            <option value="fractaltree">Fractal Growth Tree</option>
+                            <option value="binarystreams">Binary Coding Streams</option>
+                            <option value="sinusoidal">Sinusoidal Grid</option>
+                            <option value="dnahelix">Double DNA Helix</option>
+                        </optgroup>
+                        <optgroup label="Fluid & Flow">
+                            <option value="rainbowflow">Rainbow Flowing Liquid</option>
+                            <option value="colorvortex">Chromatic Vortex</option>
+                            <option value="waterripple">Calm Water Ripples</option>
+                            <option value="lavabubbles">Lava Bubbles</option>
+                            <option value="quantum">Quantum Foam Vibration</option>
+                            <option value="acidtrip">Acid Psychedelic Swirl</option>
+                            <option value="hearts">Floating Hearts</option>
+                            <option value="confettibg">Continuous Confetti</option>
+                            <option value="glitchnoise">Analog Glitch Noise</option>
+                            <option value="abstractfluid">Abstract Fluid Dynamics</option>
+                        </optgroup>
+                        <optgroup label="Classic Overrides">
+                            <option value="color">Solid Color</option>
+                            <option value="gradient">Custom Gradient</option>
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                            <option value="none">None</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <!-- File/URL only shown for image/video -->
+                <div id="bg-file-area" style="display:none;">
+                    <div class="fg"><label class="lbl">File (must be in profile folder) or URL</label>
+                        <div class="file-row">
+                            <input type="text" id="cfg-bg-value" oninput="up()">
+                            <button class="btn-browse" onclick="document.getElementById('file-bg').click()">Browse</button>
+                            <input type="file" id="file-bg" style="display:none" onchange="pickFile(this,'cfg-bg-value')">
+                        </div>
+                    </div>
+                </div>
+                <!-- Solid color -->
+                <div id="bg-color-area" style="display:none;">
+                    <div class="color-row"><label>Background Color</label><input type="color" id="col-bg-solid" value="#000000" oninput="up()"></div>
+                </div>
+                <!-- Gradient -->
+                <div id="bg-gradient-area" style="display:none;">
+                    <div class="fg"><label class="lbl">Gradient Direction</label>
+                        <select id="cfg-grad-dir" onchange="up()">
+                            <option value="135deg">Diagonal ↘</option>
+                            <option value="to right">Horizontal →</option>
+                            <option value="to bottom">Vertical ↓</option>
+                            <option value="to top">Vertical ↑</option>
+                            <option value="45deg">Diagonal ↗</option>
+                        </select>
+                    </div>
+                    <div class="row row-3">
+                        <div class="fg"><label class="lbl">Color 1</label><input type="color" id="col-grad1" value="#0a1128" oninput="up()"></div>
+                        <div class="fg"><label class="lbl">Color 2</label><input type="color" id="col-grad2" value="#1a0b2e" oninput="up()"></div>
+                        <div class="fg"><label class="lbl">Color 3</label><input type="color" id="col-grad3" value="#000000" oninput="up()"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Image Options</div>
+                <div class="fg"><label class="lbl">Background Size</label>
+                    <select id="cfg-bg-size" onchange="up()">
+                        <option value="cover">Cover</option>
+                        <option value="contain">Contain</option>
+                        <option value="stretch">Stretch</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="lbl">Background Position</label>
+                    <select id="cfg-bg-position" onchange="up()">
+                        <option value="center">Center</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+                <div class="fg"><div class="toggle" id="tgl-parallax" onclick="tog(this)">Parallax Mouse Tracking</div></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Visibility</div>
+                <div class="range-row"><label>BG Opacity</label><input type="range" id="cfg-bg-opacity" min="0" max="1" step="0.05" value="1" oninput="rng(this,'bg-op-val');up()"><span class="range-val" id="bg-op-val">1</span></div>
+                <div class="range-row"><label>BG Blur (px)</label><input type="range" id="cfg-bg-blur" min="0" max="30" value="0" oninput="rng(this,'bg-blur-val');up()"><span class="range-val" id="bg-blur-val">0</span></div>
+            </div>
+        </div>
+
+        <!-- ========== FX (SPECIAL EFFECTS) ========== -->
+        <div class="panel" id="panel-effects">
+            <div class="section">
+                <div class="section-title">Visual Overlays</div>
+                <div class="fg"><div class="toggle" id="tgl-crt" onclick="tog(this)">CRT Scanline Effect</div></div>
+                <div class="range-row"><label>CRT Intensity</label><input type="range" id="cfg-crt-int" min="0" max="1" step="0.05" value="0.25" oninput="rng(this,'crt-int-val');up()"><span class="range-val" id="crt-int-val">0.25</span></div>
+                <div class="fg"><div class="toggle" id="tgl-vignette" onclick="tog(this)">Vignette (Dark Edges)</div></div>
+                <div class="range-row"><label>Vignette Intensity</label><input type="range" id="cfg-vignette-int" min="0" max="1" step="0.05" value="0.5" oninput="rng(this,'vig-int-val');up()"><span class="range-val" id="vig-int-val">0.5</span></div>
+                <div class="fg"><div class="toggle" id="tgl-grain" onclick="tog(this)">Film Grain / Noise</div></div>
+                <div class="fg"><div class="toggle" id="tgl-screen-glow" onclick="tog(this);up()">Screen Edge Glow</div></div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Glow Color</label><input type="color" id="col-screen-glow" value="#ff00ff" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Intensity</label><input type="number" id="cfg-screen-glow-int" value="0.3" step="0.05" min="0" max="1" oninput="up()"></div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-title">Ambient Overlay Particles</div>
+                <div class="fg"><div class="toggle" id="tgl-snow" onclick="tog(this)">Falling Snow</div></div>
+                <div class="range-row"><label>Snow Density</label><input type="range" id="cfg-snow-density" min="10" max="200" value="50" oninput="rng(this,'snow-d-val');up()"><span class="range-val" id="snow-d-val">50</span></div>
+                <div class="fg"><div class="toggle" id="tgl-ambient" onclick="tog(this)">Floating Particles</div></div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Particle Color</label><input type="color" id="col-ambient" value="#ffffff" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Density</label><input type="number" id="cfg-ambient-density" value="30" min="5" max="100" oninput="up()"></div>
+                </div>
+                <div class="fg"><div class="toggle" id="tgl-confetti" onclick="tog(this)">Confetti on Load</div></div>
+                <div class="fg"><div class="toggle" id="tgl-click-ripple" onclick="tog(this)">Click Ripple Effect</div></div>
+                <div class="fg"><div class="toggle" id="tgl-click-fireworks" onclick="tog(this)">Click Fireworks 🎆</div></div>
+            </div>
+        </div>
+
+        <!-- ========== MOUSE / CURSOR ========== -->
+        <div class="panel" id="panel-cursor">
+            <div class="section">
+                <div class="section-title">Mouse Cursor Style</div>
+                <div class="fg"><label class="lbl">Cursor Style</label>
+                    <select id="cfg-cursor" onchange="showCursorCustom();up()">
+                        <option value="none">Default Arrow</option>
+                        <option value="crosshair">Crosshair (+)</option>
+                        <option value="trail_white">White Trail</option>
+                        <option value="neon_glow">Neon Glow</option>
+                        <option value="liquid">Liquid Smear</option>
+                        <option value="rainbow">Rainbow Trail 🌈</option>
+                        <option value="sparkles">Sparkles ✨</option>
+                        <option value="heart">Heart Trail ❤️</option>
+                        <option value="star">Star Trail ⭐</option>
+                        <option value="fire">Fire Trail 🔥</option>
+                        <option value="snow">Snow ❄️</option>
+                        <option value="butterfly">Butterfly 🦋</option>
+                        <option value="electric">Electric ⚡</option>
+                        <option value="blood_drip">Blood Drip</option>
+                        <option value="smoke">Smoke Cloud</option>
+                        <option value="pixel">Pixel Rain</option>
+                        <option value="meteor">Meteor Streak</option>
+                        <option value="dna">DNA Helix</option>
+                        <option value="emoji">Custom Emoji</option>
+                        <option value="custom">Custom Image</option>
+                    </select>
+                </div>
+                <div id="cursor-custom-area" style="display:none;">
+                    <div class="fg"><label class="lbl">Custom Cursor File</label>
+                        <div class="file-row">
+                            <input type="text" id="cfg-cursor-custom" oninput="up()">
+                            <button class="btn-browse" onclick="document.getElementById('file-cursor').click()">Browse</button>
+                            <input type="file" id="file-cursor" style="display:none" accept="image/*" onchange="pickFile(this,'cfg-cursor-custom')">
+                        </div>
+                    </div>
+                </div>
+                <div class="fg"><label class="lbl">Custom Emoji</label><input type="text" id="cfg-cursor-emoji" value="🔥" oninput="up()"></div>
+                <div class="color-row"><label>Trail Color</label><input type="color" id="col-cursor-color" value="#ffffff" oninput="up()"></div>
+                <div class="range-row"><label>Trail Size (px)</label><input type="range" id="cfg-cursor-size" min="4" max="24" value="8" oninput="rng(this,'cur-size-val');up()"><span class="range-val" id="cur-size-val">8</span></div>
+                <div class="range-row"><label>Trail Density</label><input type="range" id="cfg-cursor-trail" min="1" max="10" value="3" oninput="rng(this,'cur-trail-val');up()"><span class="range-val" id="cur-trail-val">3</span></div>
+            </div>
+        </div>
+
+        <!-- ========== COLORS ========== -->
+        <div class="panel" id="panel-colors">
+            <div class="section">
+                <div class="section-title">Page & Card</div>
+                <div class="color-row"><label>Page Background</label><input type="color" id="col-bg" value="#000000" oninput="up()"></div>
+                <div class="color-row"><label>Card BG Color</label><input type="color" id="col-card-bg" value="#0f0f0f" oninput="up()"></div>
+                <div class="range-row"><label>Card Background Opacity</label><input type="range" id="cfg-card-bg-op" min="0" max="1" step="0.05" value="0.6" oninput="rng(this,'card-bg-op-val');up()"><span class="range-val" id="card-bg-op-val">0.6</span></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Text</div>
+                <div class="color-row"><label>Primary Text</label><input type="color" id="col-text-primary" value="#ffffff" oninput="up()"></div>
+                <div class="color-row"><label>Secondary Text</label><input type="color" id="col-text-secondary" value="#a0a0a0" oninput="up()"></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Accents</div>
+                <div class="color-row"><label>Accent Color</label><input type="color" id="col-accent" value="#ffffff" oninput="up()"></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Social Icons</div>
+                <div class="color-row"><label>Icon Color</label><input type="color" id="col-social" value="#ffffff" oninput="up()"></div>
+                <div class="color-row"><label>Icon Hover Color</label><input type="color" id="col-social-hover" value="#ff00ff" oninput="up()"></div>
+            </div>
+            <div class="section">
+                <div class="section-title">Links Hover Color</div>
+                <div class="color-row"><label>Link Hover BG</label><input type="color" id="col-link-hover" value="#ffffff" oninput="up()"></div>
+            </div>
+        </div>
+
+        <!-- ========== EFFECTS+ (EXTRAS, WIDGETS & TOOLS) ========== -->
+        <div class="panel" id="panel-effects-plus">
+            <!-- Buttons Style -->
+            <div class="section">
+                <div class="section-title">Button Customization</div>
+                <div class="color-row"><label>Button BG Color</label><input type="color" id="col-btn-bg" value="#000000" oninput="up()"></div>
+                <div class="range-row"><label>BG Opacity</label><input type="range" id="cfg-btn-opacity" min="0" max="1" step="0.05" value="0.3" oninput="rng(this,'btn-op-val');up()"><span class="range-val" id="btn-op-val">0.3</span></div>
+                <div class="color-row"><label>Button Text Color</label><input type="color" id="col-btn-text" value="#ffffff" oninput="up()"></div>
+                <div class="color-row"><label>Button Border Color</label><input type="color" id="col-btn-border" value="#333333" oninput="up()"></div>
+                <div class="fg"><div class="toggle on" id="tgl-btn-border" onclick="tog(this)">Show Button Border</div></div>
+                <div class="range-row"><label>Button Radius (px)</label><input type="range" id="cfg-btn-radius" min="0" max="40" value="10" oninput="rng(this,'btn-r-val');up()"><span class="range-val" id="btn-r-val">10</span></div>
+                <div class="range-row"><label>Button Font Size</label><input type="range" id="cfg-btn-font" min="11" max="22" value="15" oninput="rng(this,'btn-f-val');up()"><span class="range-val" id="btn-f-val">15</span></div>
+                <div class="range-row"><label>Padding V (px)</label><input type="range" id="cfg-btn-pv" min="8" max="30" value="16" oninput="rng(this,'btn-pv-val');up()"><span class="range-val" id="btn-pv-val">16</span></div>
+                <div class="fg"><label class="lbl">Hover Animation</label>
+                    <select id="cfg-btn-hover" onchange="up()">
+                        <option value="slideRight">Slide Right</option>
+                        <option value="glow">Glow</option>
+                        <option value="glow-fill">Glow Fill</option>
+                        <option value="scale">Scale</option>
+                        <option value="invert">Invert Colors</option>
+                        <option value="pulse">Pulse</option>
+                        <option value="shake">Shake</option>
+                        <option value="bounce">Bounce</option>
+                        <option value="lift">Lift Up</option>
+                        <option value="border-slide">Border Slide</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="fg"><label class="lbl">Icon Position</label>
+                        <select id="cfg-btn-icon-pos" onchange="up()">
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label class="lbl">Text Align</label>
+                        <select id="cfg-btn-text-align" onchange="up()">
+                            <option value="center">Center</option>
+                            <option value="left">Left</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Socials & Links Manager -->
+            <div class="section">
+                <div class="section-title">Links Manager</div>
+                <div style="font-weight:600;font-size:0.85rem;color:#ffaa00;margin-bottom:8px;">Social Icons</div>
+                <div class="presets" style="margin-bottom:8px;">
+                    <button class="preset" onclick="addSocialPreset('fab fa-discord','Discord')">Discord</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-tiktok','TikTok')">TikTok</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-youtube','YouTube')">YouTube</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-twitter','Twitter/X')">X</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-instagram','Instagram')">Instagram</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-twitch','Twitch')">Twitch</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-steam','Steam')">Steam</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-github','GitHub')">GitHub</button>
+                    <button class="preset" onclick="addSocialPreset('fab fa-spotify','Spotify')">Spotify</button>
+                </div>
+                <div class="list-area" id="socials-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+                <button class="btn-add" onclick="addSocial()" style="margin-bottom:16px;">+ Add Social</button>
+
+                <div style="font-weight:600;font-size:0.85rem;color:#ffaa00;margin-bottom:8px;">Profile Links</div>
+                <div class="list-area" id="links-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+                <button class="btn-add" onclick="addLink()">+ Add Link</button>
+            </div>
+
+            <!-- Private Links -->
+            <div class="section">
+                <div class="section-title">Private / Locked Links Tab</div>
+                <div class="fg"><div class="toggle" id="tgl-private-links" onclick="tog(this);showPrivateArea();up()">Enable Private Links Tab</div></div>
+                <div id="private-links-area" style="display:none;">
+                    <div class="fg"><label class="lbl">Section Button Label</label><input type="text" id="cfg-private-title" placeholder="🔒 Unlock Private Tabs" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Section PIN / Password</label><input type="text" id="cfg-private-pw" placeholder="7777" oninput="up()"></div>
+                    <label class="lbl">Private Links</label>
+                    <div class="list-area" id="private-links-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;"></div>
+                    <button class="btn-add" onclick="addPrivateLink()">🔒 Unlock Private Links</button>
+                </div>
+            </div>
+
+            <!-- Profile Security -->
+            <div class="section">
+                <div class="section-title">Profile PIN Lock Security</div>
+                <div class="fg"><div class="toggle" id="tgl-password" onclick="tog(this);showPassArea();up()">Enable Password Lock</div></div>
+                <div id="password-lock-area" style="display:none;">
+                    <div class="fg"><label class="lbl">PIN / Password</label><input type="text" id="cfg-password" placeholder="1234" oninput="up()"></div>
+                    <div class="fg"><label class="lbl">Locked Screen Message</label><input type="text" id="cfg-password-msg" placeholder="This profile is private." oninput="up()"></div>
+                </div>
+            </div>
+
+            <!-- Widgets -->
+            <div class="section">
+                <div class="section-title">Widgets & Metadata</div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:8px 0 4px 0;">View Counter</div>
+                <div class="fg"><div class="toggle" id="tgl-vc" onclick="tog(this)">Enable View Counter</div></div>
+                <div class="fg"><label class="lbl">Counter Style</label>
+                    <select id="cfg-vc-style" onchange="up()">
+                        <option value="minimal">Minimal</option>
+                        <option value="badge">Badge</option>
+                        <option value="neon">Neon</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="lbl">Label</label><input type="text" id="cfg-vc-label" value="views" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Placement Position</label>
+                    <select id="cfg-vc-pos" onchange="up()">
+                        <option value="bottom">Default Bottom</option>
+                        <option value="top">Top (Above Avatar)</option>
+                        <option value="belowAvatar">Below Avatar</option>
+                        <option value="belowUsername">Below Username</option>
+                        <option value="belowBio">Below Bio</option>
+                        <option value="belowSocials">Below Socials</option>
+                    </select>
+                </div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Meta Information (Bio Tags)</div>
+                <div class="fg"><div class="toggle" id="tgl-pronouns" onclick="tog(this)">Show Pronouns</div></div>
+                <div class="fg"><label class="lbl">Pronouns Text</label><input type="text" id="cfg-pronouns" value="he/him" oninput="up()"></div>
+                <div class="fg"><div class="toggle" id="tgl-location" onclick="tog(this)">Show Location</div></div>
+                <div class="fg"><label class="lbl">Location</label><input type="text" id="cfg-location" value="Somewhere, Earth" oninput="up()"></div>
+                <div class="fg"><div class="toggle" id="tgl-age" onclick="tog(this)">Show Age</div></div>
+                <div class="fg"><label class="lbl">Birthday (YYYY-MM-DD)</label><input type="text" id="cfg-birthday" placeholder="2000-01-01" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Placement Position</label>
+                    <select id="cfg-meta-pos" onchange="up()">
+                        <option value="bottom">Default Bottom</option>
+                        <option value="top">Top (Above Avatar)</option>
+                        <option value="belowAvatar">Below Avatar</option>
+                        <option value="belowUsername">Below Username</option>
+                        <option value="belowBio">Below Bio</option>
+                        <option value="belowSocials">Below Socials</option>
+                    </select>
+                </div>
+
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Spotify Widget</div>
+                <div class="fg"><div class="toggle" id="tgl-spotify" onclick="tog(this)">Show Spotify Widget</div></div>
+                <div class="fg"><label class="lbl">Track Name</label><input type="text" id="cfg-spotify-track" placeholder="Song Title" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Artist Name</label><input type="text" id="cfg-spotify-artist" placeholder="Artist" oninput="up()"></div>
+                <div class="fg"><label class="lbl">Album Art URL / Filename</label>
+                    <div class="file-row">
+                        <input type="text" id="cfg-spotify-art" oninput="up()">
+                        <button class="btn-browse" onclick="document.getElementById('file-spotify-art').click()">Browse</button>
+                        <input type="file" id="file-spotify-art" style="display:none" accept="image/*" onchange="pickFile(this,'cfg-spotify-art')">
+                    </div>
+                </div>
+                <div class="fg"><label class="lbl">Placement Position</label>
+                    <select id="cfg-spotify-pos" onchange="up()">
+                        <option value="bottom">Default Bottom</option>
+                        <option value="top">Top (Above Avatar)</option>
+                        <option value="belowAvatar">Below Avatar</option>
+                        <option value="belowUsername">Below Username</option>
+                        <option value="belowBio">Below Bio</option>
+                        <option value="belowSocials">Below Socials</option>
+                    </select>
+                </div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Style & Spacing</div>
+                <div class="fg"><label class="lbl">Widget Alignment</label>
+                    <select id="cfg-widgets-align" onchange="up()">
+                        <option value="center">Center</option>
+                        <option value="flex-start">Left</option>
+                        <option value="flex-end">Right</option>
+                    </select>
+                </div>
+                <div class="fg"><div class="toggle" id="tgl-widgets-trans" onclick="tog(this)">Transparent Widgets (No BG/Borders)</div></div>
+                
+                <div style="font-weight:600;font-size:0.8rem;color:#bbb;margin:12px 0 4px 0;">Section Dividers</div>
+                <div class="fg"><div class="toggle" id="tgl-divider" onclick="tog(this)">Show Section Dividers</div></div>
+                <div class="fg"><label class="lbl">Divider Style</label>
+                    <select id="cfg-divider-style" onchange="up()">
+                        <option value="line">Thin Line</option>
+                        <option value="dots">Dots</option>
+                    </select>
+                </div>
+                <div class="color-row"><label>Divider Color</label><input type="color" id="col-divider" value="#333333" oninput="up()"></div>
+            </div>
+
+            <!-- Background Music Audio -->
+            <div class="section">
+                <div class="section-title">Background Audio</div>
+                <div class="fg"><label class="lbl">Audio Filename (in profile folder) or URL</label>
+                    <div class="file-row">
+                        <input type="text" id="cfg-audio" oninput="up()">
+                        <button class="btn-browse" onclick="document.getElementById('file-audio').click()">Browse</button>
+                        <input type="file" id="file-audio" style="display:none" accept="audio/*" onchange="pickFile(this,'cfg-audio')">
+                    </div>
+                </div>
+                <button type="button" class="btn-add" style="background:#1db954;margin-bottom:12px;width:100%;font-weight:600;" onclick="testAudio()">▶️ Test / Play Audio in Editor</button>
+                <div id="audio-status-msg" style="font-size:0.75rem;color:#777;text-align:center;margin-bottom:12px;line-height:1.4;"></div>
+                <div class="range-row"><label>Volume</label><input type="range" id="cfg-audio-vol" min="0" max="1" step="0.05" value="0.5" oninput="rng(this,'audio-vol-val');up()"><span class="range-val" id="audio-vol-val">0.5</span></div>
+            </div>
+
+            <!-- Enter Screen -->
+            <div class="section">
+                <div class="section-title">Enter Screen</div>
+                <div class="fg"><div class="toggle on" id="tgl-enter" onclick="tog(this)">Enable Enter Screen</div></div>
+                <div class="fg"><div class="toggle on" id="tgl-enter-avatar" onclick="tog(this)">Show Avatar on Enter Screen</div></div>
+                <div class="fg"><label class="lbl">Enter Text</label><input type="text" id="cfg-enter-text" value="[ Click to Enter ]" oninput="up()"></div>
+                <div class="color-row"><label>Enter Screen BG</label><input type="color" id="col-enter-bg" value="#000000" oninput="up()"></div>
+                <div class="color-row"><label>Enter Text Color</label><input type="color" id="col-enter-text" value="#ffffff" oninput="up()"></div>
+            </div>
+
+            <!-- Landing Page Website Builder -->
+            <div class="section">
+                <div class="section-title">Landing Page Website Builder</div>
+                <div class="fg"><label class="lbl">Website Title</label><input type="text" id="web-title" value="alternate.lol" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">Hero Title</label><textarea id="web-hero-title" style="width:100%;height:60px;background:#111;border:1px solid #222;color:#fff;border-radius:4px;padding:8px;font-family:inherit;box-sizing:border-box;outline:none;" oninput="updateWebPreview()">Elevate&#10;Reality</textarea></div>
+                <div class="fg"><label class="lbl">Hero Subtitle</label><input type="text" id="web-hero-sub" value="Minimalist digital assets. Uncompromising design. Experience a new standard of aesthetics" oninput="updateWebPreview()"></div>
+                
+                <div style="font-weight:600;font-size:0.85rem;color:#ffaa00;margin:12px 0 6px 0;">Products</div>
+                <div class="fg"><label class="lbl">Product 1 Title</label><input type="text" id="web-p1-title" value="alternate.lol Alpha" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">Product 1 Desc</label><input type="text" id="web-p1-desc" value="Core framework" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">Product 1 Link</label><input type="text" id="web-p1-link" value="https://example.com/buy-product-1" oninput="updateWebPreview()"></div>
+                <hr style="border:none;border-top:1px solid #222;margin:12px 0;">
+                <div class="fg"><label class="lbl">Product 2 Title</label><input type="text" id="web-p2-title" value="alternate.lol Beta" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">Product 2 Desc</label><input type="text" id="web-p2-desc" value="Advanced toolkit" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">Product 2 Link</label><input type="text" id="web-p2-link" value="https://example.com/buy-product-2" oninput="updateWebPreview()"></div>
+                
+                <div style="font-weight:600;font-size:0.85rem;color:#ffaa00;margin:12px 0 6px 0;">Footer Socials</div>
+                <div class="fg"><label class="lbl">Discord Link</label><input type="text" id="web-discord" value="https://discord.gg/alternate" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">TikTok Link</label><input type="text" id="web-tiktok" value="https://tiktok.com/@falserealitys" oninput="updateWebPreview()"></div>
+                <div class="fg"><label class="lbl">YouTube Link</label><input type="text" id="web-youtube" value="https://www.youtube.com/@koni683" oninput="updateWebPreview()"></div>
+                
+                <button class="btn-add" style="background:#fff;color:#000;font-weight:600;border:none;" onclick="downloadConfig()">💾 Download config.js</button>
+            </div>
+        </div>
+
+    </div><!-- /panels -->
+</div><!-- /sidebar -->
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <button class="topbar-btn" id="btn-refresh" onclick="up(true)">⟐ Refresh Preview</button>
+        <button class="topbar-btn" id="btn-autosave" onclick="enableAutoSave()" style="background:#2d1b4e;color:#fff;border-color:#5a32a8;">⚡ Enable Auto-Save</button>
+        <button class="topbar-btn" id="btn-download" onclick="downloadConfig()" style="background:#111;color:#fff;border-color:#333;">💾 Download config.js</button>
+        <button class="topbar-btn primary" id="btn-copy" onclick="copyConfig()">Copy config.js</button>
+        <span class="topbar-label" id="topbar-label">Editing: koni/config.js</span>
+    </div>
+    <div class="preview-wrap"><iframe id="preview" src="koni/index.html" allow="autoplay" onload="sendConfigToIframe()"></iframe></div>
+    <div class="code-area">
+        <div class="code-header">
+            <span id="code-label">window.KoniConfig = { ... }</span>
+        </div>
+        <div class="code-body"><pre id="code-out"></pre></div>
+    </div>
+</div>
+
+<script>
+'use strict';
+
+// ---- STATE ----
+var links = [{title:'My Portfolio',url:'#',icon:'',newTab:true},{title:'Storefront',url:'../index.html',icon:'',newTab:false}];
+var socials = [{icon:'fab fa-discord',url:'#',label:'Discord'},{icon:'fab fa-tiktok',url:'#',label:'TikTok'},{icon:'fab fa-youtube',url:'#',label:'YouTube'}];
+var privateLinks = [{title:'OnlyFans (Example)',url:'#',icon:'fab fa-heart',newTab:true}];
+var badges = [];
+var layoutOrder = ['avatar', 'username', 'subtitle', 'bio', 'badges', 'socials', 'links'];
+
+var DEFAULT = {
+    username:'koni', usernameEffect:'rainbow', subtitle:'', bio:'Digital Creator | Aesthetics',
+    typewriterBio:true, typewriterSpeed:50, showAvatar:true, avatarUrl:'../hero-image.png',
+    avatarSize:120, avatarShape:'circle', avatarEffect:'shine', avatarBorder:'rgb',
+    avatarBorderColor:'#ff00ff', fontFamily:"'Space Grotesk', sans-serif", customFontUrl:'', customFontName:'',
+    fontWeight:'600', fontSize:100, badge1:{text:'',color:'#ffffff',bg:'#1a1a1a'}, badge2:{text:'',color:'#ffffff',bg:'#1a1a1a'},
+    customBadges:[],
+    cardLayout:'default', bannerUrl:'', bannerHeight:120,
+    cardPositionH:'center', cardPositionV:'middle', cardWidth:450, cardPadding:48,
+    showUsername:true, showSubtitle:false, showBio:true, showSocials:true, showLinks:true, showBadges:false,
+    linksLayout:'list', socialLayout:'row', socialSize:24, socialGap:24,
+    sectionDivider:{enabled:false,style:'line',color:'#333333'},
+    enterScreen:{enabled:true,text:'[ Click to Enter ]',bg:'#000000',textColor:'#ffffff',showAvatar:true},
+    background:{type:'aurora',value:'',opacity:1,blur:0,size:'cover',position:'center',parallax:false,gradientDir:'135deg',gradientColor1:'#0a1128',gradientColor2:'#1a0b2e',gradientColor3:'#000000',color:'#000000'},
+    effects:{crt:false,crtIntensity:0.25,vignette:false,vignetteIntensity:0.5,grain:false,snow:false,snowDensity:50,confetti:false,clickRipple:false,clickFireworks:false,ambientParticles:false,ambientColor:'#ffffff',ambientDensity:30,screenGlow:false,screenGlowColor:'#ff00ff',screenGlowIntensity:0.3},
+    cursor:{type:'trail_white',customUrl:'',customEmoji:'🔥',size:8,trailDensity:3,color:'#ffffff'},
+    card:{blur:15,borderRadius:20,borderWidth:1,borderColor:'#333333',borderStyle:'solid',animation:'pop',tilt:true,tiltStrength:35,shadowColor:'#000000',shadowBlur:50},
+    buttons:{borderRadius:10,bg:'#000000',bgOpacity:0.3,border:true,borderColor:'#333333',textColor:'#ffffff',hoverEffect:'slideRight',fontSize:15,paddingV:16,paddingH:20,iconPosition:'left',textAlign:'center'},
+    colors:{bg:'#000000',cardBg:'#0f0f0f',cardBgOpacity:0.6,textPrimary:'#ffffff',textSecondary:'#a0a0a0',accent:'#ffffff',socialIcon:'#ffffff',socialIconHover:'#ff00ff',linkHoverBg:'#ffffff'},
+    audio:{url:'The_Weeknd_-_The_Party_The_After_Party_Sango_Remix_KLICKAUD.mp3',autoplay:true,volume:0.5},
+    audioVisualizer:{enabled:true,style:'bars',barCount:64,color:'accent',customColor:'#ffffff',heightMultiplier:1.2,position:'bottom',opacity:0.5,rounded:true},
+    widgets:{viewCounter:{enabled:false,style:'minimal',label:'views'},pronouns:{enabled:false,text:'he/him'},location:{enabled:false,text:'Somewhere, Earth'},age:{enabled:false,birthday:''},spotifyWidget:{enabled:false,trackUrl:'',artistName:'',trackName:'',albumArt:''},widgetsTransparent:false},
+    passwordEnabled:false, password:'', passwordMsg:'This profile is private.',
+    privateLinksEnabled:false, privatePw:'7777', privateTitle:'🔒 Unlock Private Links',
+    socials:socials, links:links, privateLinks:privateLinks
+};
+
+// ---- TABS ----
+function openTab(t, el) {
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    const panel = document.getElementById('panel-'+t);
+    if (panel) panel.classList.add('active');
+    if (el) el.classList.add('active');
+    else if (event && event.currentTarget) event.currentTarget.classList.add('active');
+}
+
+// ---- TOGGLES ----
+function tog(el) { el.classList.toggle('on'); up(); }
+function isOn(id) {
+    const el = document.getElementById(id);
+    return el ? el.classList.contains('on') : false;
+}
+
+// ---- LAYOUT BUILDER ----
+function toggleLayoutEditMode() {
+    const el = document.getElementById('layout-grid-builder');
+    if (el.style.display === 'none') {
+        el.style.display = 'flex';
+        renderLayoutBuilder();
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+function renderLayoutBuilder() {
+    const el = document.getElementById('layout-grid-builder');
+    el.innerHTML = layoutOrder.map((item, i) => `
+        <div style="display:flex;align-items:center;background:#1a1a1a;border:1px solid #333;padding:8px 12px;border-radius:6px;justify-content:space-between;">
+            <div style="font-weight:600;text-transform:capitalize;"><i class="fas fa-grip-vertical" style="color:#555;margin-right:8px;"></i> ${item}</div>
+            <div style="display:flex;gap:4px;">
+                <button onclick="moveLayoutUp(${i})" style="background:#2a2a2a;border:1px solid #444;color:#aaa;padding:4px 8px;border-radius:4px;cursor:pointer;">↑</button>
+                <button onclick="moveLayoutDown(${i})" style="background:#2a2a2a;border:1px solid #444;color:#aaa;padding:4px 8px;border-radius:4px;cursor:pointer;">↓</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function moveLayoutUp(i) {
+    if(i > 0) {
+        const temp = layoutOrder[i];
+        layoutOrder[i] = layoutOrder[i-1];
+        layoutOrder[i-1] = temp;
+        renderLayoutBuilder();
+        up();
+    }
+}
+
+function moveLayoutDown(i) {
+    if(i < layoutOrder.length - 1) {
+        const temp = layoutOrder[i];
+        layoutOrder[i] = layoutOrder[i+1];
+        layoutOrder[i+1] = temp;
+        renderLayoutBuilder();
+        up();
+    }
+}
+
+// ---- LINKS & SOCIALS ----
+function renderLinks() {
+    // ... logic omitted for brevity
+}
+
+// ---- RANGE DISPLAY ----
+function rng(input, valId) {
+    const el = document.getElementById(valId);
+    if (el && input) el.textContent = input.value;
+}
+
+// ---- SHOW/HIDE CONDITIONALS ----
+function showCustomFont() {
+    const el = document.getElementById('cfg-font');
+    const area = document.getElementById('custom-font-area');
+    if (el && area) {
+        area.style.display = el.value === 'custom' ? 'block' : 'none';
+    }
+}
+function showBgOptions() {
+    const el = document.getElementById('cfg-bg-type');
+    if (!el) return;
+    const v = el.value;
+    const fileArea = document.getElementById('bg-file-area');
+    const colorArea = document.getElementById('bg-color-area');
+    const gradArea = document.getElementById('bg-gradient-area');
+    if (fileArea) fileArea.style.display = (v === 'image' || v === 'video') ? 'block' : 'none';
+    if (colorArea) colorArea.style.display = v === 'color' ? 'block' : 'none';
+    if (gradArea) gradArea.style.display = v === 'gradient' ? 'block' : 'none';
+}
+function showCursorCustom() {
+    const el = document.getElementById('cfg-cursor');
+    const area = document.getElementById('cursor-custom-area');
+    if (el && area) {
+        area.style.display = el.value === 'custom' ? 'block' : 'none';
+    }
+}
+function showVisCustomColor() {
+    const el = document.getElementById('cfg-vis-color');
+    if (!el) return;
+    const v = el.value;
+    const area = document.getElementById('vis-custom-color');
+    if (area) area.style.display = v === 'custom' ? 'block' : 'none';
+}
+
+
+// ---- FILE PICKER ----
+function pickFile(input, targetId) {
+    if (input.files && input.files.length) {
+        document.getElementById(targetId).value = input.files[0].name;
+        up();
+    }
+}
+
+// ---- LOAD STATE INTO UI ----
+function loadState(profile) {
+    const saved = localStorage.getItem(profile+'PreviewConfig');
+    let cfg = Object.assign({}, DEFAULT);
+    if (saved) { try { cfg = Object.assign({}, DEFAULT, JSON.parse(saved)); } catch(e){} }
+
+    links = cfg.links || DEFAULT.links; renderLinks();
+    socials = cfg.socials || DEFAULT.socials; renderSocials();
+    layoutOrder = cfg.layout || ['avatar', 'username', 'subtitle', 'bio', 'badges', 'socials', 'links'];
+    const layoutEl = document.getElementById('layout-grid-builder');
+    if (layoutEl && layoutEl.style.display !== 'none') renderLayoutBuilder();
+
+    function set(id, val) { const el = document.getElementById(id); if(el) el.value = val; }
+    function setOn(id, val) { const el = document.getElementById(id); if(!el) return; val ? el.classList.add('on') : el.classList.remove('on'); }
+    function setRng(id, valId, val) { set(id, val); if(document.getElementById(valId)) document.getElementById(valId).textContent = val; }
+
+    set('cfg-username', cfg.username);
+    set('cfg-uname-fx', cfg.usernameEffect);
+    set('cfg-bio', cfg.bio);
+    set('cfg-subtitle', cfg.subtitle || '');
+    setOn('tgl-typewriter', cfg.typewriterBio);
+    setRng('cfg-tw-speed', 'tw-speed-val', cfg.typewriterSpeed || 50);
+    set('cfg-avatar', cfg.avatarUrl);
+    set('cfg-avatar-shape', cfg.avatarShape || 'circle');
+    set('cfg-avatar-fx', cfg.avatarEffect || 'none');
+    set('cfg-avatar-border', cfg.avatarBorder || 'none');
+    set('col-avatar-border', cfg.avatarBorderColor || '#ff00ff');
+    setRng('cfg-avatar-size', 'avatar-size-val', cfg.avatarSize || 120);
+    setOn('tgl-show-avatar', cfg.showAvatar !== false);
+    set('cfg-font', cfg.fontFamily);
+    set('cfg-font-url', cfg.customFontUrl || '');
+    set('cfg-font-name', cfg.customFontName || '');
+    set('cfg-font-weight', cfg.fontWeight || '600');
+    set('cfg-font-scale', cfg.fontSize || 100);
+    set('cfg-badge1-text', (cfg.badge1||{}).text || '');
+    set('col-badge1', (cfg.badge1||{}).color || '#ffffff');
+    set('cfg-badge2-text', (cfg.badge2||{}).text || '');
+    set('col-badge2', (cfg.badge2||{}).color || '#ffffff');
+
+    set('cfg-card-h', cfg.cardPositionH || 'center');
+    set('cfg-card-v', cfg.cardPositionV || 'middle');
+    setRng('cfg-card-width', 'card-w-val', cfg.cardWidth || 450);
+    setRng('cfg-card-padding', 'card-pad-val', cfg.cardPadding || 48);
+    setOn('tgl-show-username', cfg.showUsername !== false);
+    setOn('tgl-show-subtitle', cfg.showSubtitle === true);
+    setOn('tgl-show-bio', cfg.showBio !== false);
+    setOn('tgl-show-badges', cfg.showBadges === true);
+    setOn('tgl-show-socials', cfg.showSocials !== false);
+    setOn('tgl-show-links', cfg.showLinks !== false);
+    set('cfg-links-layout', cfg.linksLayout || 'list');
+    set('cfg-social-layout', cfg.socialLayout || 'row');
+    setRng('cfg-social-size', 'social-size-val', cfg.socialSize || 24);
+    setRng('cfg-social-gap', 'social-gap-val', cfg.socialGap || 24);
+
+    const en = cfg.enterScreen || {};
+    setOn('tgl-enter', en.enabled !== false);
+    setOn('tgl-enter-avatar', en.showAvatar !== false);
+    set('cfg-enter-text', en.text || '[ Click to Enter ]');
+    set('col-enter-bg', en.bg || '#000000');
+    set('col-enter-text', en.textColor || '#ffffff');
+
+    const bg = cfg.background || {};
+    set('cfg-bg-type', bg.type || 'aurora');
+    set('cfg-bg-value', bg.value || '');
+    set('col-bg-solid', bg.color || '#000000');
+    set('cfg-grad-dir', bg.gradientDir || '135deg');
+    set('col-grad1', bg.gradientColor1 || '#0a1128');
+    set('col-grad2', bg.gradientColor2 || '#1a0b2e');
+    set('col-grad3', bg.gradientColor3 || '#000000');
+    set('cfg-bg-size', bg.size || 'cover');
+    set('cfg-bg-position', bg.position || 'center');
+    setOn('tgl-parallax', bg.parallax === true);
+    setRng('cfg-bg-opacity', 'bg-op-val', bg.opacity !== undefined ? bg.opacity : 1);
+    setRng('cfg-bg-blur', 'bg-blur-val', bg.blur || 0);
+
+    set('cfg-audio', (cfg.audio||{}).url || '');
+    setRng('cfg-audio-vol', 'audio-vol-val', (cfg.audio||{}).volume !== undefined ? (cfg.audio||{}).volume : 0.5);
+
+
+
+    const fx = cfg.effects || {};
+    setOn('tgl-crt', fx.crt === true);
+    setRng('cfg-crt-int', 'crt-int-val', fx.crtIntensity || 0.25);
+    setOn('tgl-vignette', fx.vignette === true);
+    setRng('cfg-vignette-int', 'vig-int-val', fx.vignetteIntensity || 0.5);
+    setOn('tgl-grain', fx.grain === true);
+    setOn('tgl-snow', fx.snow === true);
+    setRng('cfg-snow-density', 'snow-d-val', fx.snowDensity || 50);
+    setOn('tgl-confetti', fx.confetti === true);
+    setOn('tgl-click-ripple', fx.clickRipple === true);
+
+    const cur = cfg.cursor || {};
+    set('cfg-cursor', cur.type || 'none');
+    set('cfg-cursor-custom', cur.customUrl || '');
+    setRng('cfg-cursor-size', 'cur-size-val', cur.size || 8);
+    setRng('cfg-cursor-trail', 'cur-trail-val', cur.trailDensity || 3);
+
+    const ca = cfg.card || {};
+    setRng('cfg-card-blur', 'card-blur-val', ca.blur || 15);
+    setRng('cfg-card-radius', 'card-rad-val', ca.borderRadius || 20);
+    setRng('cfg-card-border-w', 'card-bw-val', ca.borderWidth || 1);
+    set('cfg-card-border-style', ca.borderStyle || 'solid');
+    set('col-card-border', ca.borderColor || '#333333');
+    set('col-card-shadow', ca.shadowColor || '#000000');
+    setRng('cfg-card-shadow', 'card-sh-val', ca.shadowBlur || 50);
+    set('cfg-card-anim', ca.animation || 'pop');
+    setOn('tgl-tilt', ca.tilt !== false);
+    setRng('cfg-tilt-str', 'tilt-str-val', ca.tiltStrength || 35);
+
+    const bt = cfg.buttons || {};
+    set('col-btn-bg', bt.bg || '#000000');
+    setRng('cfg-btn-opacity', 'btn-op-val', bt.bgOpacity || 0.3);
+    set('col-btn-text', bt.textColor || '#ffffff');
+    set('col-btn-border', bt.borderColor || '#333333');
+    setOn('tgl-btn-border', bt.border !== false);
+    setRng('cfg-btn-radius', 'btn-r-val', bt.borderRadius || 10);
+    setRng('cfg-btn-font', 'btn-f-val', bt.fontSize || 15);
+    setRng('cfg-btn-pv', 'btn-pv-val', bt.paddingV || 16);
+    set('cfg-btn-hover', bt.hoverEffect || 'slideRight');
+
+    const cl = cfg.colors || {};
+    set('col-bg', cl.bg || '#000000');
+    set('col-card-bg', cl.cardBg || '#0f0f0f');
+    setRng('cfg-card-bg-op', 'card-bg-op-val', cl.cardBgOpacity !== undefined ? cl.cardBgOpacity : 0.6);
+    set('col-text-primary', cl.textPrimary || '#ffffff');
+    set('col-text-secondary', cl.textSecondary || '#a0a0a0');
+    set('col-accent', cl.accent || '#ffffff');
+    set('col-social', cl.socialIcon || '#ffffff');
+    set('col-social-hover', cl.socialIconHover || '#ff00ff');
+    set('col-link-hover', cl.linkHoverBg || '#ffffff');
+
+    const wg = cfg.widgets || {};
+    setOn('tgl-vc', (wg.viewCounter||{}).enabled === true);
+    set('cfg-vc-style', (wg.viewCounter||{}).style || 'minimal');
+    set('cfg-vc-label', (wg.viewCounter||{}).label || 'views');
+    set('cfg-vc-pos', (wg.viewCounter||{}).position || 'bottom');
+
+    setOn('tgl-pronouns', (wg.pronouns||{}).enabled === true);
+    set('cfg-pronouns', (wg.pronouns||{}).text || 'he/him');
+    setOn('tgl-location', (wg.location||{}).enabled === true);
+    set('cfg-location', (wg.location||{}).text || 'Somewhere, Earth');
+    setOn('tgl-age', (wg.age||{}).enabled === true);
+    set('cfg-birthday', (wg.age||{}).birthday || '');
+    set('cfg-meta-pos', wg.metaPosition || 'bottom');
+
+    setOn('tgl-spotify', (wg.spotifyWidget||{}).enabled === true);
+    set('cfg-spotify-track', (wg.spotifyWidget||{}).trackName || '');
+    set('cfg-spotify-artist', (wg.spotifyWidget||{}).artistName || '');
+    set('cfg-spotify-art', (wg.spotifyWidget||{}).albumArt || '');
+    set('cfg-spotify-pos', (wg.spotifyWidget||{}).position || 'bottom');
+
+    setOn('tgl-divider', (cfg.sectionDivider||{}).enabled === true);
+    set('cfg-divider-style', (cfg.sectionDivider||{}).style || 'line');
+    set('col-divider', (cfg.sectionDivider||{}).color || '#333333');
+    set('cfg-widgets-align', wg.align || 'center');
+    setOn('tgl-widgets-trans', wg.transparent === true);
+
+    // Badges list
+    badges = cfg.customBadges || [];
+    renderBadges();
+
+    // Security Lock
+    setOn('tgl-password', cfg.passwordEnabled === true);
+    set('cfg-password', cfg.password || '');
+    set('cfg-password-msg', cfg.passwordMsg || 'This profile is private.');
+    showPassArea();
+
+    // Private Links
+    setOn('tgl-private-links', cfg.privateLinksEnabled === true);
+    set('cfg-private-title', cfg.privateTitle || '🔒 Unlock Private Links');
+    set('cfg-private-pw', cfg.privatePw || '7777');
+    privateLinks = cfg.privateLinks || [];
+    renderPrivateLinks();
+    showPrivateArea();
+
+    showCustomFont(); showBgOptions(); showCursorCustom(); showVisCustomColor();
+    up(true);
+}
+
+// ---- BUILD CONFIG ----
+function buildConfig() {
+    function get(id) { const e=document.getElementById(id); return e ? e.value : ''; }
+    function getFloat(id, fallback) { const v=get(id); return (v!=='' && !isNaN(v)) ? parseFloat(v) : fallback; }
+    function getInt(id, fallback) { const v=get(id); return (v!=='' && !isNaN(v)) ? parseInt(v) : fallback; }
+
+    return {
+        username: get('cfg-username'),
+        usernameEffect: get('cfg-uname-fx'),
+        subtitle: get('cfg-subtitle'),
+        bio: get('cfg-bio'),
+        typewriterBio: isOn('tgl-typewriter'),
+        typewriterSpeed: getInt('cfg-tw-speed', 50),
+        showAvatar: isOn('tgl-show-avatar'),
+        avatarUrl: get('cfg-avatar'),
+        avatarSize: getInt('cfg-avatar-size', 120),
+        avatarShape: get('cfg-avatar-shape'),
+        avatarEffect: get('cfg-avatar-fx'),
+        avatarBorder: get('cfg-avatar-border'),
+        avatarBorderColor: get('col-avatar-border'),
+        fontFamily: get('cfg-font'),
+        customFontUrl: get('cfg-font-url'),
+        customFontName: get('cfg-font-name'),
+        fontWeight: get('cfg-font-weight'),
+        fontSize: getInt('cfg-font-scale', 100),
+        badge1: { text: get('cfg-badge1-text'), color: get('col-badge1'), bg: '#333333' },
+        badge2: { text: get('cfg-badge2-text'), color: get('col-badge2'), bg: '#333333' },
+
+        cardLayout: document.getElementById('cfg-card-layout') ? document.getElementById('cfg-card-layout').value : 'default',
+        bannerUrl: document.getElementById('cfg-banner-url') ? document.getElementById('cfg-banner-url').value : '',
+        bannerHeight: document.getElementById('cfg-banner-height') ? getInt('cfg-banner-height', 120) : 120,
+        cardPositionV: get('cfg-card-v'),
+        cardWidth: getInt('cfg-card-width', 450),
+        cardPadding: getInt('cfg-card-padding', 48),
+        showUsername: isOn('tgl-show-username'),
+        showSubtitle: isOn('tgl-show-subtitle'),
+        showBio: isOn('tgl-show-bio'),
+        showBadges: isOn('tgl-show-badges'),
+        showSocials: isOn('tgl-show-socials'),
+        showLinks: isOn('tgl-show-links'),
+        linksLayout: get('cfg-links-layout'),
+        socialLayout: get('cfg-social-layout'),
+        socialSize: getInt('cfg-social-size', 24),
+        socialGap: getInt('cfg-social-gap', 24),
+        enterScreen: {
+            enabled: isOn('tgl-enter'),
+            showAvatar: isOn('tgl-enter-avatar'),
+            text: get('cfg-enter-text'),
+            bg: get('col-enter-bg'),
+            textColor: get('col-enter-text')
+        },
+
+        background: {
+            type: get('cfg-bg-type'),
+            value: get('cfg-bg-value'),
+            color: get('col-bg-solid'),
+            opacity: getFloat('cfg-bg-opacity', 1),
+            blur: getInt('cfg-bg-blur', 0),
+            size: get('cfg-bg-size'),
+            position: get('cfg-bg-position'),
+            parallax: isOn('tgl-parallax'),
+            gradientDir: get('cfg-grad-dir'),
+            gradientColor1: get('col-grad1'),
+            gradientColor2: get('col-grad2'),
+            gradientColor3: get('col-grad3')
+        },
+
+        effects: {
+            crt: isOn('tgl-crt'),
+            crtIntensity: getFloat('cfg-crt-int', 0.25),
+            vignette: isOn('tgl-vignette'),
+            vignetteIntensity: getFloat('cfg-vignette-int', 0.5),
+            grain: isOn('tgl-grain'),
+            snow: isOn('tgl-snow'),
+            snowDensity: getInt('cfg-snow-density', 50),
+            confetti: isOn('tgl-confetti'),
+            clickRipple: isOn('tgl-click-ripple'),
+            clickFireworks: isOn('tgl-click-fireworks'),
+            ambientParticles: isOn('tgl-ambient'),
+            ambientColor: get('col-ambient') || '#ffffff',
+            ambientDensity: getInt('cfg-ambient-density', 30),
+            screenGlow: isOn('tgl-screen-glow'),
+            screenGlowColor: get('col-screen-glow') || '#ff00ff',
+            screenGlowIntensity: getFloat('cfg-screen-glow-int', 0.3)
+        },
+
+        cursor: {
+            type: get('cfg-cursor'),
+            customUrl: get('cfg-cursor-custom'),
+            customEmoji: get('cfg-cursor-emoji') || '🔥',
+            size: getInt('cfg-cursor-size', 8),
+            trailDensity: getInt('cfg-cursor-trail', 3),
+            color: get('col-cursor-color') || '#ffffff'
+        },
+
+        card: {
+            blur: getInt('cfg-card-blur', 15),
+            borderRadius: getInt('cfg-card-radius', 20),
+            borderWidth: getInt('cfg-card-border-w', 1),
+            borderColor: get('col-card-border'),
+            borderStyle: get('cfg-card-border-style'),
+            animation: get('cfg-card-anim'),
+            tilt: isOn('tgl-tilt'),
+            tiltStrength: getInt('cfg-tilt-str', 35),
+            shadowColor: get('col-card-shadow'),
+            shadowBlur: getInt('cfg-card-shadow', 50)
+        },
+
+        buttons: {
+            borderRadius: getInt('cfg-btn-radius', 10),
+            bg: get('col-btn-bg'),
+            bgOpacity: getFloat('cfg-btn-opacity', 0.3),
+            border: isOn('tgl-btn-border'),
+            borderColor: get('col-btn-border'),
+            textColor: get('col-btn-text'),
+            hoverEffect: get('cfg-btn-hover'),
+            fontSize: getInt('cfg-btn-font', 15),
+            paddingV: getInt('cfg-btn-pv', 16),
+            paddingH: 20,
+            iconPosition: get('cfg-btn-icon-pos') || 'left',
+            textAlign: get('cfg-btn-text-align') || 'center'
+        },
+
+        colors: {
+            bg: get('col-bg'),
+            cardBg: get('col-card-bg'),
+            cardBgOpacity: getFloat('cfg-card-bg-op', 0.6),
+            textPrimary: get('col-text-primary'),
+            textSecondary: get('col-text-secondary'),
+            accent: get('col-accent'),
+            socialIcon: get('col-social'),
+            socialIconHover: get('col-social-hover'),
+            linkHoverBg: get('col-link-hover')
+        },
+
+        audio: { url: get('cfg-audio'), autoplay: true, volume: getFloat('cfg-audio-vol', 0.5) },
+        audioVisualizer: { enabled: true, style: 'spotify' },
+
+        widgets: {
+            align: get('cfg-widgets-align') || 'center',
+            transparent: isOn('tgl-widgets-trans'),
+            viewCounter: { enabled: isOn('tgl-vc'), style: get('cfg-vc-style')||'minimal', label: get('cfg-vc-label')||'views', position: get('cfg-vc-pos')||'bottom' },
+            pronouns: { enabled: isOn('tgl-pronouns'), text: get('cfg-pronouns')||'he/him' },
+            location: { enabled: isOn('tgl-location'), text: get('cfg-location')||'' },
+            age: { enabled: isOn('tgl-age'), birthday: get('cfg-birthday')||'' },
+            metaPosition: get('cfg-meta-pos')||'bottom',
+            spotifyWidget: { enabled: isOn('tgl-spotify'), trackName: get('cfg-spotify-track')||'', artistName: get('cfg-spotify-artist')||'', albumArt: get('cfg-spotify-art')||'', position: get('cfg-spotify-pos')||'bottom' }
+        },
+
+        sectionDivider: { enabled: isOn('tgl-divider'), style: get('cfg-divider-style')||'line', color: get('col-divider')||'#333333' },
+
+        customBadges: badges,
+        passwordEnabled: isOn('tgl-password'),
+        password: get('cfg-password'),
+        passwordMsg: get('cfg-password-msg') || 'This profile is private.',
+        privateLinksEnabled: isOn('tgl-private-links'),
+        privatePw: get('cfg-private-pw'),
+        privateTitle: get('cfg-private-title') || '🔒 Unlock Private Links',
+
+        socials: socials,
+        links: links,
+        privateLinks: privateLinks,
+        layout: layoutOrder
+    };
+}
+
+// ---- UPDATE PREVIEW ----
+function sendConfigToIframe() {
+    const iframe = document.getElementById('preview');
+    if (iframe && iframe.contentWindow) {
+        const cfg = buildConfig();
+        iframe.contentWindow.postMessage({ type: 'updateConfig', config: cfg }, '*');
+    }
+}
+
+function up(reload) {
+    const profile = document.getElementById('cfg-profile').value;
+    const cfg = buildConfig();
+    const code = 'window.' + profile.charAt(0).toUpperCase() + profile.slice(1) + 'Config = ' + JSON.stringify(cfg, null, 2) + ';';
+    document.getElementById('code-out').textContent = code;
+    localStorage.setItem(profile + 'PreviewConfig', JSON.stringify(cfg));
+    if (reload) {
+        document.getElementById('preview').src = profile + '/index.html';
+    } else {
+        sendConfigToIframe();
+    }
+    
+    // Trigger auto-save if enabled
+    if (window.autoSaveConfig) window.autoSaveConfig(code);
+}
+
+function switchProfile() {
+    const profile = document.getElementById('cfg-profile').value;
+    document.getElementById('topbar-label').textContent = 'Editing: ' + profile + '/config.js';
+    document.getElementById('code-label').textContent = 'window.KoniConfig = { ... } → ' + profile + '/config.js';
+    loadState(profile);
+}
+
+function copyConfig() {
+    const code = document.getElementById('code-out').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '✓ Copied!'; btn.style.background='#00cc66';btn.style.borderColor='#00cc66';
+        setTimeout(()=>{ btn.textContent='Copy config.js'; btn.style.background=''; btn.style.borderColor=''; }, 2200);
+    });
+}
+
+// ---- LINKS RENDERER ----
+window.removeLink = function(i) { links.splice(i,1); renderLinks(); up(); };
+window.moveLinkUp = function(i) { if(i>0){const t=links[i-1];links[i-1]=links[i];links[i]=t;} renderLinks(); up(); };
+window.moveLinkDown = function(i) { if(i<links.length-1){const t=links[i+1];links[i+1]=links[i];links[i]=t;} renderLinks(); up(); };
+
+function renderLinks() {
+    const w = document.getElementById('links-list');
+    w.innerHTML = links.map((l,i) => `
+        <div class="list-item">
+            <input type="text" placeholder="Title" value="${(l.title||'').replace(/"/g,'&quot;')}" oninput="links[${i}].title=this.value;up()">
+            <input type="text" placeholder="https://..." value="${(l.url||'').replace(/"/g,'&quot;')}" oninput="links[${i}].url=this.value;up()">
+            <input type="text" placeholder="icon class" value="${(l.icon||'').replace(/"/g,'&quot;')}" style="max-width:120px;" oninput="links[${i}].icon=this.value;up()">
+            <button onclick="moveLinkUp(${i})" style="background:#1a1a1a;border:1px solid #333;color:#666;padding:5px 8px;border-radius:4px;cursor:pointer;">↑</button>
+            <button onclick="moveLinkDown(${i})" style="background:#1a1a1a;border:1px solid #333;color:#666;padding:5px 8px;border-radius:4px;cursor:pointer;">↓</button>
+            <button class="btn-rm" onclick="window.removeLink(${i})">✖</button>
+        </div>
+    `).join('');
+}
+window.addLink = function() { links.push({title:'New Link',url:'#',icon:'',newTab:true}); renderLinks(); up(); };
+
+// ---- SOCIALS RENDERER ----
+window.removeSocial = function(i) { socials.splice(i,1); renderSocials(); up(); };
+function addSocialPreset(icon, label) { socials.push({icon,url:'#',label}); renderSocials(); up(); }
+window.addSocial = function() { socials.push({icon:'fab fa-star',url:'#',label:''}); renderSocials(); up(); };
+
+function renderSocials() {
+    const w = document.getElementById('socials-list');
+    w.innerHTML = socials.map((s,i) => `
+        <div class="list-item">
+            <input type="text" placeholder="fab fa-discord" value="${(s.icon||'').replace(/"/g,'&quot;')}" style="max-width:140px;" oninput="socials[${i}].icon=this.value;up()">
+            <input type="text" placeholder="https://..." value="${(s.url||'').replace(/"/g,'&quot;')}" oninput="socials[${i}].url=this.value;up()">
+            <button class="btn-rm" onclick="window.removeSocial(${i})">✖</button>
+        </div>
+    `).join('');
+}
+
+// ---- TEST AUDIO ----
+var audioTester = null;
+window.testAudio = function() {
+    const url = document.getElementById('cfg-audio').value;
+    const msgEl = document.getElementById('audio-status-msg');
+    if (!url) {
+        msgEl.textContent = '⚠️ Enter an audio URL or filename first.';
+        msgEl.style.color = '#ff4444';
+        return;
+    }
+    if (audioTester) {
+        audioTester.pause();
+        audioTester = null;
+        msgEl.textContent = '⏹ Audio stopped.';
+        msgEl.style.color = '#a0a0a0';
+        return;
+    }
+    msgEl.textContent = '⚡ Loading audio: ' + url;
+    msgEl.style.color = '#ffaa00';
+    const profile = document.getElementById('cfg-profile').value;
+    let resolvedUrl = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('/')) {
+        resolvedUrl = profile + '/' + url;
+    }
+    audioTester = new Audio(resolvedUrl);
+    audioTester.volume = parseFloat(document.getElementById('cfg-audio-vol').value) || 0.5;
+    audioTester.play()
+        .then(() => {
+            msgEl.textContent = '▶️ Playing: ' + url + ' (Click button again to Stop)';
+            msgEl.style.color = '#1db954';
+        })
+        .catch(err => {
+            msgEl.textContent = '❌ Error: ' + err.message + ' (Make sure the file is inside the ' + profile + '/ directory)';
+            msgEl.style.color = '#ff4444';
+            audioTester = null;
+        });
+};
+
+// ---- CARD PRESETS ----
+window.applyPreset = function(type) {
+    const blurEl = document.getElementById('cfg-card-blur');
+    const opEl = document.getElementById('cfg-card-bg-op');
+    const bwEl = document.getElementById('cfg-card-border-w');
+    const styleEl = document.getElementById('cfg-card-border-style');
+    const shadowEl = document.getElementById('cfg-card-shadow');
+
+    if (type === 'solid') {
+        if (blurEl) { blurEl.value = 0; rng(blurEl, 'card-blur-val'); }
+        if (opEl) { opEl.value = 1; rng(opEl, 'card-bg-op-val'); }
+        if (bwEl) { bwEl.value = 1; rng(bwEl, 'card-bw-val'); }
+        if (styleEl) styleEl.value = 'solid';
+    } else if (type === 'glass') {
+        if (blurEl) { blurEl.value = 15; rng(blurEl, 'card-blur-val'); }
+        if (opEl) { opEl.value = 0.3; rng(opEl, 'card-bg-op-val'); }
+        if (bwEl) { bwEl.value = 1; rng(bwEl, 'card-bw-val'); }
+        if (styleEl) styleEl.value = 'solid';
+    } else if (type === 'invisible') {
+        if (blurEl) { blurEl.value = 0; rng(blurEl, 'card-blur-val'); }
+        if (opEl) { opEl.value = 0; rng(opEl, 'card-bg-op-val'); }
+        if (bwEl) { bwEl.value = 0; rng(bwEl, 'card-bw-val'); }
+        if (styleEl) styleEl.value = 'none';
+        if (shadowEl) { shadowEl.value = 0; rng(shadowEl, 'card-sh-val'); }
+    } else if (type === 'neon') {
+        if (blurEl) { blurEl.value = 15; rng(blurEl, 'card-blur-val'); }
+        if (opEl) { opEl.value = 0.15; rng(opEl, 'card-bg-op-val'); }
+        if (bwEl) { bwEl.value = 2; rng(bwEl, 'card-bw-val'); }
+        if (styleEl) styleEl.value = 'neon';
+    }
+    up(true);
+};
+
+// ---- DOWNLOAD CONFIG ----
+window.downloadConfig = function() {
+    const profile = document.getElementById('cfg-profile').value;
+    const code = document.getElementById('code-out').textContent;
+    const blob = new Blob([code], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'config.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// ---- AUTO SAVE ----
+let fileHandle = null;
+window.enableAutoSave = async function() {
+    if (!window.showOpenFilePicker) {
+        alert("Your browser does not support the File System Access API. Please use a modern browser like Chrome or Edge.");
+        return;
+    }
+    try {
+        const [handle] = await window.showOpenFilePicker({
+            types: [{ description: 'JavaScript File', accept: {'text/javascript': ['.js']} }],
+            multiple: false
+        });
+        fileHandle = handle;
+        const btn = document.getElementById('btn-autosave');
+        btn.textContent = '✅ Auto-Saving';
+        btn.style.background = '#00cc66';
+        btn.style.borderColor = '#00cc66';
+        up(); // trigger initial save
+    } catch (err) {
+        console.error("Auto-save setup failed:", err);
+    }
+};
+
+window.autoSaveConfig = async function(code) {
+    if (!fileHandle) return;
+    try {
+        const writable = await fileHandle.createWritable();
+        await writable.write(code);
+        await writable.close();
+    } catch (err) {
+        console.error("Auto-save failed:", err);
+    }
+};
+
+// ---- SECURITY VIEW AREA ----
+window.showPassArea = function() {
+    const on = document.getElementById('tgl-password').classList.contains('on');
+    document.getElementById('password-lock-area').style.display = on ? '' : 'none';
+};
+
+// ---- PRIVATE LINKS AREA ----
+window.showPrivateArea = function() {
+    const on = document.getElementById('tgl-private-links').classList.contains('on');
+    document.getElementById('private-links-area').style.display = on ? '' : 'none';
+};
+
+// ---- PRIVATE LINKS RENDERER ----
+window.removePrivateLink = function(i) { privateLinks.splice(i,1); renderPrivateLinks(); up(); };
+function renderPrivateLinks() {
+    const w = document.getElementById('private-links-list');
+    if (!w) return;
+    w.innerHTML = privateLinks.map((l,i) => `
+        <div class="list-item">
+            <input type="text" placeholder="Title" value="${(l.title||'').replace(/"/g,'&quot;')}" oninput="privateLinks[${i}].title=this.value;up()">
+            <input type="text" placeholder="https://..." value="${(l.url||'').replace(/"/g,'&quot;')}" oninput="privateLinks[${i}].url=this.value;up()">
+            <input type="text" placeholder="icon class" value="${(l.icon||'').replace(/"/g,'&quot;')}" style="max-width:120px;" oninput="privateLinks[${i}].icon=this.value;up()">
+            <button class="btn-rm" onclick="window.removePrivateLink(${i})">✖</button>
+        </div>
+    `).join('');
+}
+window.addPrivateLink = function() { privateLinks.push({title:'Private Link',url:'#',icon:'',newTab:true}); renderPrivateLinks(); up(); };
+
+// ---- BADGES RENDERER ----
+window.removeBadge = function(idx) {
+    badges.splice(idx, 1);
+    renderBadges();
+    up();
+};
+
+window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'layoutUpdate') {
+        layoutOrder = e.data.layout;
+        const layoutEl = document.getElementById('layout-grid-builder');
+        if (layoutEl && layoutEl.style.display !== 'none') renderLayoutBuilder();
+        up(false);
+    }
+});
+
+function renderBadges() {
+    const w = document.getElementById('badges-list');
+    if (!w) return;
+    w.innerHTML = badges.map((b,i) => `
+        <div class="list-item">
+            <input type="text" placeholder="Badge Text" value="${(b.text||'').replace(/"/g,'&quot;')}" oninput="badges[${i}].text=this.value;up()">
+            <input type="color" value="${b.color||'#ffffff'}" style="max-width:40px;padding:0;height:30px;" oninput="badges[${i}].color=this.value;up()">
+            <input type="color" value="${b.bg||'#1a1a1a'}" style="max-width:40px;padding:0;height:30px;" oninput="badges[${i}].bg=this.value;up()">
+            <button class="btn-rm" onclick="window.removeBadge(${i})">🗑️</button>
+        </div>
+    `).join('');
+}
+window.addBadge = function() { badges.push({text:'New Badge',color:'#ffffff',bg:'#1a1a1a'}); renderBadges(); up(); };
+
+// ---- NEW PROFILE ----
+window.addNewProfile = function() {
+    const name = prompt("Enter a name for the new profile (lowercase, no spaces):");
+    if (!name) return;
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    if (!cleanName) { alert("Invalid name!"); return; }
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;backdrop-filter:blur(5px);';
+    modal.innerHTML = `
+        <div style="background:#111;padding:24px;border-radius:12px;max-width:450px;width:100%;border:1px solid #222;box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+            <h3 style="margin-top:0;color:#fff;"><i class="fas fa-user-plus" style="color:#00cc66;"></i> Profile Setup: "${cleanName}"</h3>
+            <p style="font-size:0.85rem;color:#aaa;line-height:1.5;">To create your new profile, do this:</p>
+            <ol style="font-size:0.85rem;color:#ccc;line-height:1.6;padding-left:20px;">
+                <li>Create a folder named <strong>"${cleanName}"</strong> inside your root directory.</li>
+                <li>Copy files from the <strong>"koni/"</strong> folder into your new folder.</li>
+                <li>Download this customized configuration file and place it inside.</li>
+            </ol>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button id="dl-new-config" style="flex:1;padding:10px;background:#00cc66;border:none;border-radius:6px;color:#fff;font-weight:600;cursor:pointer;">💾 Download config.js</button>
+                <button id="close-modal" style="padding:10px 16px;background:#222;border:1px solid #333;border-radius:6px;color:#ccc;cursor:pointer;">Done</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('#dl-new-config').addEventListener('click', () => {
+        const newCfg = Object.assign({}, DEFAULT, { username: cleanName });
+        const code = 'window.' + cleanName.charAt(0).toUpperCase() + cleanName.slice(1) + 'Config = ' + JSON.stringify(newCfg, null, 2) + ';';
+        const blob = new Blob([code], { type: 'text/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'config.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+    
+    modal.querySelector('#close-modal').addEventListener('click', () => {
+        const select = document.getElementById('cfg-profile');
+        const opt = document.createElement('option');
+        opt.value = cleanName;
+        opt.textContent = cleanName;
+        select.appendChild(opt);
+        select.value = cleanName;
+        switchProfile();
+        modal.remove();
+    });
+};
+
+// ---- LANDING PAGE BUILDING TEMPLATE ----
+var websiteTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}}</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <canvas id="wave-canvas"></canvas>
+    <div class="container">
+        <header>
+            <div class="logo">alternate.lol</div>
+            <div class="socials">
+                <a href="{{DISCORD}}" class="social-icon"><i class="fab fa-discord"></i></a>
+                <a href="{{TIKTOK}}" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                <a href="{{YOUTUBE}}" class="social-icon"><i class="fab fa-youtube"></i></a>
+            </div>
+        </header>
+        <main class="hero">
+            <div class="hero-content tilt-element" style="padding: 2rem;">
+                <h1>{{HERO_TITLE}}</h1>
+                <p>{{HERO_SUB}}</p>
+                <div class="action-buttons">
+                    <a href="#products" class="btn">Explore</a>
+                </div>
+            </div>
+            <div class="hero-image-wrapper tilt-element">
+                <img src="hero-image.png" alt="alternate.lol" class="hero-image">
+            </div>
+        </main>
+        <section id="products" class="products-section">
+            <div class="products-grid">
+                <a href="{{P1_LINK}}" target="_blank" class="product-card tilt-element">
+                    <div class="product-image"></div>
+                    <div class="product-info">
+                        <h3>{{P1_TITLE}}</h3>
+                        <p>{{P1_DESC}}</p>
+                    </div>
+                </a>
+                <a href="{{P2_LINK}}" target="_blank" class="product-card tilt-element">
+                    <div class="product-image"></div>
+                    <div class="product-info">
+                        <h3>{{P2_TITLE}}</h3>
+                        <p>{{P2_DESC}}</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+    <script src="script.js"><\/script>
+</body>
+</html>`;
+
+window.updateWebPreview = function() {
+    // Intentionally simple, client-side preview updates can be saved to localStorage if desired
+};
+
+window.downloadWebsite = function() {
+    let html = websiteTemplate;
+    html = html.replace(/{{TITLE}}/g, document.getElementById('web-title').value);
+    html = html.replace(/{{HERO_TITLE}}/g, document.getElementById('web-hero-title').value.replace(/\n/g, '<br>'));
+    html = html.replace(/{{HERO_SUB}}/g, document.getElementById('web-hero-sub').value);
+    html = html.replace(/{{P1_TITLE}}/g, document.getElementById('web-p1-title').value);
+    html = html.replace(/{{P1_DESC}}/g, document.getElementById('web-p1-desc').value);
+    html = html.replace(/{{P1_LINK}}/g, document.getElementById('web-p1-link').value);
+    html = html.replace(/{{P2_TITLE}}/g, document.getElementById('web-p2-title').value);
+    html = html.replace(/{{P2_DESC}}/g, document.getElementById('web-p2-desc').value);
+    html = html.replace(/{{P2_LINK}}/g, document.getElementById('web-p2-link').value);
+    html = html.replace(/{{DISCORD}}/g, document.getElementById('web-discord').value);
+    html = html.replace(/{{TIKTOK}}/g, document.getElementById('web-tiktok').value);
+    html = html.replace(/{{YOUTUBE}}/g, document.getElementById('web-youtube').value);
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'index.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
+
+// ---- INIT ----
+setTimeout(() => loadState('koni'), 100);
+
+// ---- TABS MOUSE WHEEL SCROLL ----
+(function() {
+    const tabsEl = document.querySelector('.tabs');
+    if (!tabsEl) return;
+    tabsEl.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        tabsEl.scrollLeft += e.deltaY !== 0 ? e.deltaY : e.deltaX;
+    }, { passive: false });
+})();
+
+</script>
+</body>
+</html>
